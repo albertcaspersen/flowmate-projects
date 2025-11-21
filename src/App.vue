@@ -4,19 +4,20 @@ import ImageViewer from './components/ImageViewer.vue';
 import Navbar from './components/Navbar.vue';
 
 
-import backgroundVideo from './pics/Skærmoptagelse 2025-11-19 kl. 16.27.52.mp4';
-import mobileBackground from './pics/Skærmbillede 2025-11-21 kl. 10.24.52.png';
+// Mediefiler fra public mappen
+const backgroundVideo = '/pics/Skærmoptagelse 2025-11-19 kl. 16.27.52.mp4';
+const mobileBackground = '/pics/Skærmbillede 2025-11-21 kl. 10.24.52.png';
 
-// Import spiralbilleder
-import spiral1 from './spiralpics/Skærmbillede 2025-11-20 kl. 12.41.20.png';
-import spiral2 from './spiralpics/Skærmbillede 2025-11-20 kl. 12.42.37.png';
-import spiral3 from './spiralpics/Skærmbillede 2025-11-20 kl. 12.43.49.png';
-import spiral4 from './spiralpics/Skærmbillede 2025-11-20 kl. 12.44.50.png';
-import spiral5 from './spiralpics/Skærmbillede 2025-11-20 kl. 12.46.03.png';
-import spiral6 from './spiralpics/Skærmbillede 2025-11-20 kl. 12.47.18.png';
-import spiral7 from './spiralpics/Skærmbillede 2025-11-20 kl. 12.47.46.png';
-import spiral8 from './spiralpics/Skærmbillede 2025-11-20 kl. 12.48.55.png';
-import spiral9 from './spiralpics/Skærmbillede 2025-11-20 kl. 12.51.29.png';
+// Spiralbilleder fra public mappen
+const spiral1 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.41.20.png';
+const spiral2 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.42.37.png';
+const spiral3 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.43.49.png';
+const spiral4 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.44.50.png';
+const spiral5 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.46.03.png';
+const spiral6 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.47.18.png';
+const spiral7 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.47.46.png';
+const spiral8 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.48.55.png';
+const spiral9 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.51.29.png';
 
 const startIndex = ref(0);
 const heroOpacity = ref(1);
