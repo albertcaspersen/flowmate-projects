@@ -26,9 +26,16 @@ const props = defineProps({
   isMobile: { type: Boolean, default: false },
 });
 
+// Emits
+const emit = defineEmits(['images-loaded']);
+
 // Refs
 const viewerOverlay = ref(null);
 const threeContainer = ref(null);
+
+// Loading state
+let loadedTexturesCount = 0;
+let totalTexturesToLoad = 0;
 
 // Three.js variabler
 let scene, camera, renderer, animationFrameId;
@@ -107,6 +114,17 @@ function createImageSpiral() {
   const verticalSpacing = 40;
   const angleStep = 0.7;
 
+  // Beregn hvor mange teksturer vi skal loade
+  totalTexturesToLoad = props.images.length + (props.videoSrc ? 1 : 0);
+  
+  // Funktion til at tjekke om alle teksturer er loadet
+  const checkAllTexturesLoaded = () => {
+    loadedTexturesCount++;
+    if (loadedTexturesCount === totalTexturesToLoad) {
+      emit('images-loaded');
+    }
+  };
+
   props.images.forEach((image, index) => {
     textureLoader.load(image.src, (texture) => {
       // Sæt korrekt farverum for teksturen
@@ -147,19 +165,22 @@ function createImageSpiral() {
 
       spiralGroup.add(mesh); // <-- ÆNDRING: Tilføj mesh til gruppen, ikke scenen
       loadedMeshes.push(mesh);
+      
+      // Tjek om alle teksturer er loadet
+      checkAllTexturesLoaded();
     });
   });
 
   // Tilføj video som det sidste element på spiralen, hvis der er en video
   if (props.videoSrc) {
-    createVideoPlane();
+    createVideoPlane(checkAllTexturesLoaded);
   }
 }
 
 //
 // -------- OPRETTER VIDEO-PLAN PÅ SPIRALEN --------
 //
-function createVideoPlane() {
+function createVideoPlane(onVideoLoaded) {
   const video = document.createElement('video');
   video.src = props.videoSrc;
   video.autoplay = true;
@@ -211,6 +232,11 @@ function createVideoPlane() {
 
     spiralGroup.add(mesh);
     loadedMeshes.push(mesh);
+    
+    // Kald callback for at signalere at video er loadet
+    if (onVideoLoaded) {
+      onVideoLoaded();
+    }
   });
 
   // Start afspilning
