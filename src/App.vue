@@ -90,10 +90,10 @@ const checkIfAllLoaded = () => {
     // Kør warm-up scroll først
     warmUpScroll();
     
-    // Vent på at progress bar når 100% (5s) + lidt ekstra tid
+    // Vent på at progress bar når 100% (3s) + lidt ekstra tid
     setTimeout(() => {
       isLoading.value = false;
-    }, 5300);
+    }, 3300);
   }
 };
 

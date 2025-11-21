@@ -56,10 +56,10 @@ const progressFill = ref(null);
 let progressTween = null;
 
 onMounted(() => {
-  // Simple progress bar animation - endnu længere varighed
+  // Simple progress bar animation
   progressTween = gsap.to(progressFill.value, {
     scaleX: 1,
-    duration: 5,
+    duration: 3,
     ease: 'power1.inOut'
   });
 });
