@@ -32,11 +32,9 @@
         </div>
       </div>
 
-      <!-- Knapper til højre -->
-      <div class="navbar-actions">
-        <button class="btn-primary">Kom i gang</button>
-        <button class="btn-secondary">English</button>
-      </div>
+      <!-- Knapper til højre - hver med sin grid position -->
+      <button class="btn-primary">Kom i gang</button>
+      <button class="btn-secondary">English</button>
     </div>
   </nav>
 </template>
@@ -73,7 +71,7 @@
 .logo {
   height: 3rem;
   /*color: #d4f44a;*/
-  color: rgb(162, 255, 90);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -84,48 +82,49 @@
   width: auto;
 }
 
-.navbar-actions {
-  grid-column: 7 / 13; /* Spænder over de sidste 6 kolonner */
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
 .btn-primary {
-  background-color: #d4f44a; /* Lys grøn-gul farve */
-  color: #1a1a1a; /* Mørk tekst */
+  grid-column: 11 / 12; /* Ændre disse tal for at flytte knappen */
+  background-color: rgb(38, 115, 179); /* Ocean mid-depth blå */
+  color: #ffffff; /* Hvid tekst */
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 10px 10px;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  position: relative;
 }
 
 .btn-primary:hover {
-  background-color: #c0e03d;
-  transform: translateY(-1px);
+  background-color: rgb(13, 51, 89); /* Dybhavsblå */
+}
+
+.btn-primary:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 217, 255, 0.5);
 }
 
 .btn-secondary {
-  background-color: rgba(30, 40, 30, 0.8); /* Mørk grøn-grå farve */
-  color: #e0e0e0; /* Lys tekst */
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  grid-column: 12 / 13; /* Ændre disse tal for at flytte knappen */
+  background-color: rgb(38, 115, 179); /* Ocean mid-depth blå */
+  color: #ffffff; /* Hvid tekst */
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 10px 10px;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  position: relative;
 }
 
 .btn-secondary:hover {
-  background-color: rgba(40, 50, 40, 0.9);
-  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgb(13, 51, 89); /* Dybhavsblå */
+}
+
+.btn-secondary:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 217, 255, 0.5);
 }
 
 /* Responsive design */
@@ -151,13 +150,15 @@
   .navbar-brand {
     grid-column: 1 / 8; /* Større på små skærme */
   }
-  
-  .navbar-actions {
-    grid-column: 8 / 13;
-  }
 
-  .btn-primary,
+  .btn-primary {
+    grid-column: 9 / 11;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+  
   .btn-secondary {
+    grid-column: 11 / 13;
     padding: 8px 16px;
     font-size: 0.85rem;
   }
@@ -171,16 +172,17 @@
   }
   
   .navbar-brand {
-    grid-column: 1 / 9;
+    grid-column: 1 / 8;
   }
   
-  .navbar-actions {
-    grid-column: 9 / 13;
-    gap: 8px;
+  .btn-primary {
+    grid-column: 9 / 11;
+    padding: 6px 12px;
+    font-size: 0.8rem;
   }
   
-  .btn-primary,
   .btn-secondary {
+    grid-column: 11 / 13;
     padding: 6px 12px;
     font-size: 0.8rem;
   }

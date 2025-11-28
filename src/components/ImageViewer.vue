@@ -27,7 +27,7 @@ const props = defineProps({
 });
 
 // Emits
-const emit = defineEmits(['images-loaded']);
+const emit = defineEmits(['images-loaded', 'update-blur']);
 
 // Refs
 const viewerOverlay = ref(null);
@@ -44,6 +44,21 @@ const loadedMeshes = []; // Til oprydning
 let lastFrameTime = 0;
 const mobileTargetFPS = 30; // Reducer FPS på mobil
 const mobileFrameInterval = 1000 / mobileTargetFPS;
+
+// Idle-animation variabler
+let idleAnimationId = null;
+let scrollTimeout = null;
+let fadeOutAnimationId = null;
+
+// Bølge-højde kontrol (juster denne værdi for at ændre bølgehøjden)
+const waveAmplitude = ref(7); // Standard værdi: 8. Øg for højere bølger, sænk for lavere bølger
+
+// Eksponér kameraet og video globalt så App.vue kan animere det
+if (typeof window !== 'undefined') {
+  window.flowmateCamera = null;
+  window.flowmateCameraInitialZ = null;
+  window.flowmateVideo = null;
+}
 
 //
 // -------- THREE.JS SETUP --------
@@ -63,6 +78,12 @@ function initThree() {
   // Sørg for at kameraet starter højt oppe, så første billede ikke ses i hero
   camera.position.y = 175; // Højere værdi = kameraet starter højere op
   camera.lookAt(0, 0, 0);
+
+  // Eksponér kameraet globalt
+  if (typeof window !== 'undefined') {
+    window.flowmateCamera = camera;
+    window.flowmateCameraInitialZ = camera.position.z;
+  }
 
 
   // 3. Renderer
@@ -92,6 +113,289 @@ function initThree() {
 
   // Opsæt scroll-animation
   setupScrollAnimation();
+
+  // SIMPEL ZOOM-OUT ANIMATION - trigger fra content management sektion
+  setTimeout(() => {
+    
+    // --- ANIMATION 1: ZOOM-UD OG BLUR UNDER CONTENT MANAGEMENT SEKTION ---
+    const contentSection = document.querySelector('.content-management-section');
+    if (contentSection && camera) {
+      const initialZ = props.isMobile ? 75 : 120; // Kameraets start-zoom
+      
+      ScrollTrigger.create({
+        trigger: contentSection,
+        start: 'top bottom', // Start blur når content-sektionen når bunden af vinduet (før den bliver synlig)
+        end: '+=150%', // Øget til 150% så blur-effekten varer længere ind i content-sektionen
+        scrub: 1,
+        onUpdate: (self) => {
+          // Opdater blur og brightness baseret på scroll-progression
+          // Blur starter gradvist efter video-zoom og holder maksimum når content-sektionen bliver synlig
+          if (self.progress < 0.20) {
+            // Første 20%: ingen blur (pause efter video-zoom)
+            emit('update-blur', { blur: 0, brightness: 1 });
+          } else if (self.progress < 0.50) {
+            // 20-50%: blur stiger gradvist
+            const blurProgress = (self.progress - 0.20) / 0.30;
+            const blur = blurProgress * 8;
+            const brightness = 1 - (blurProgress * 0.5);
+            emit('update-blur', { blur, brightness });
+          } else {
+            // 50-100%: hold blur på maksimum niveau
+            emit('update-blur', { blur: 8, brightness: 0.5 });
+          }
+          
+          // Håndter kameraets zoom-ud i slutningen af animationen
+          // Zoom kun ud hvis vi ikke allerede har zoomet ind på videoen
+          if (self.progress >= 0.8 && !hasZoomedInOnVideo) {
+            const zoomProgress = (self.progress - 0.7) / 0.3;
+            const currentZ = camera.position.z;
+
+            if (!self.zoomStartZ && zoomProgress > 0) {
+              self.zoomStartZ = currentZ;
+            }
+
+            if (self.zoomStartZ) {
+              const initialZ = props.isMobile ? 75 : 120;
+              const easedProgress = 1 - Math.pow(1 - zoomProgress, 3);
+              camera.position.z = self.zoomStartZ + (initialZ - self.zoomStartZ) * easedProgress;
+            }
+          }
+        },
+        id: 'content-zoom-out'
+      });
+    }
+
+    // --- ANIMATION 2: FADE OUT OVERLAY HEIGHT EFTER CONTENT SEKTION ---
+    const nextSection = document.querySelector('.next-section');
+    if (nextSection) {
+      // Variabler til idle-animation
+      let lastScrollProgress = 0;
+      let scrollDirection = 1; // 1 = ned (højre), -1 = op (venstre)
+      let idleWaveOffset = 0;
+      let isIdleAnimating = false;
+      let fadeOutStartTime = null;
+      let fadeOutStartOffset = 0; // Gem start-værdien for fade-out
+      let fadeOutDuration = 300; // 300ms fade-out periode (øget for blødere stop)
+
+      // Funktion til at opdatere clip-path med idle-animation
+      const updateClipPath = (heightProgress, waveOffset = 0) => {
+        const newHeight = (1 - heightProgress) * 100;
+        viewerOverlay.value.style.height = `${newHeight}vh`;
+
+        // Kombiner scroll-baseret waveOffset med idle-animation offset
+        const totalWaveOffset = heightProgress * 16 + waveOffset;
+        const baseY = 100 - heightProgress * 100;
+
+        const points = [];
+        points.push('0% 0%', '100% 0%');
+
+        const numPoints = 30;
+        for (let i = 0; i <= numPoints; i++) {
+          const xPercent = 100 - (i / numPoints) * 100;
+          const waveX = (i / numPoints) * Math.PI * 2 + totalWaveOffset;
+          const waveY = baseY + Math.sin(waveX) * waveAmplitude.value;
+          points.push(`${xPercent}% ${waveY}%`);
+        }
+
+        viewerOverlay.value.style.clipPath = `polygon(${points.join(', ')})`;
+      };
+
+      // Funktion til idle-animation (skvulpe-effekt)
+      const startIdleAnimation = (targetProgress) => {
+        if (isIdleAnimating) return;
+        isIdleAnimating = true;
+        
+        let startTime = performance.now();
+        const duration = 2000; // 2 sekunder for en komplet skvulpe-cyklus
+        const maxOffset = 8; // Maksimal offset for skvulpe-effekten (øget for mere skvulpe)
+
+        const animate = (currentTime) => {
+          const elapsed = currentTime - startTime;
+          const progress = elapsed / duration;
+          
+          // Brug en easing funktion der går i én retning og gradvist stopper
+          // Ease-out funktion der starter hurtigt og gradvist stopper
+          const damping = Math.exp(-progress * 2); // Eksponentiel dæmpning
+          const startEase = Math.min(progress * 3, 1); // Gradvist byg op i første tredjedel
+          
+          // Brug en ease-out kurve der går fra 0 til 1 og så tilbage til 0
+          // Men kun i én retning baseret på scroll-retningen
+          const easeOut = 1 - Math.pow(1 - Math.min(progress, 1), 3);
+          const easeInOut = progress < 0.5 
+            ? 2 * progress * progress 
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+          
+          // Skvulpe i én retning baseret på scroll-retningen
+          // scrollDirection = 1 (ned) -> positiv offset (højre)
+          // scrollDirection = -1 (op) -> negativ offset (venstre)
+          idleWaveOffset = easeInOut * maxOffset * damping * startEase * scrollDirection;
+          
+          // Opdater clip-path med idle-animation
+          updateClipPath(targetProgress, idleWaveOffset);
+          
+          // Stop animationen når den er dæmpet nok - men start fade-out i stedet for pludselig stop
+          if (damping < 0.05) {
+            isIdleAnimating = false;
+            // Start fade-out i stedet for at sætte til 0 med det samme
+            if (idleWaveOffset !== 0 && fadeOutStartTime === null) {
+              fadeOutStartTime = performance.now();
+              fadeOutStartOffset = idleWaveOffset;
+            }
+            return;
+          }
+          
+          idleAnimationId = requestAnimationFrame(animate);
+        };
+        
+        idleAnimationId = requestAnimationFrame(animate);
+      };
+
+      // Funktion til at stoppe idle-animation med blød fade-out
+      const stopIdleAnimation = () => {
+        if (idleAnimationId) {
+          cancelAnimationFrame(idleAnimationId);
+          idleAnimationId = null;
+        }
+        isIdleAnimating = false;
+        // Start fade-out i stedet for at sætte til 0 med det samme
+        if (idleWaveOffset !== 0 && fadeOutStartTime === null) {
+          fadeOutStartTime = performance.now();
+          fadeOutStartOffset = idleWaveOffset;
+          startFadeOutAnimation();
+        } else if (idleWaveOffset === 0) {
+          fadeOutStartTime = null;
+          if (fadeOutAnimationId) {
+            cancelAnimationFrame(fadeOutAnimationId);
+            fadeOutAnimationId = null;
+          }
+        }
+      };
+
+      // Funktion til at håndtere fade-out animation kontinuerligt
+      const startFadeOutAnimation = () => {
+        if (fadeOutAnimationId) return; // Allerede kører
+        
+        const fadeOutLoop = () => {
+          if (fadeOutStartTime === null) {
+            fadeOutAnimationId = null;
+            return;
+          }
+          
+          const fadeOutElapsed = performance.now() - fadeOutStartTime;
+          const fadeOutProgress = Math.min(fadeOutElapsed / fadeOutDuration, 1);
+          // Ease-out for blødere fade
+          const easeOut = 1 - Math.pow(1 - fadeOutProgress, 3);
+          idleWaveOffset = fadeOutStartOffset * (1 - easeOut);
+          
+          // Opdater clip-path med fade-out offset
+          updateClipPath(lastScrollProgress, idleWaveOffset);
+          
+          if (fadeOutProgress >= 1) {
+            idleWaveOffset = 0;
+            fadeOutStartTime = null;
+            fadeOutStartOffset = 0;
+            fadeOutAnimationId = null;
+            updateClipPath(lastScrollProgress, 0);
+            return;
+          }
+          
+          fadeOutAnimationId = requestAnimationFrame(fadeOutLoop);
+        };
+        
+        fadeOutAnimationId = requestAnimationFrame(fadeOutLoop);
+      };
+
+      ScrollTrigger.create({
+        trigger: nextSection,
+        start: 'top bottom',
+        end: 'top top',
+        scrub: 1,
+        onUpdate: (self) => {
+          // Stop idle-animation når man scroller
+          stopIdleAnimation();
+          
+          const heightProgress = self.progress;
+          // Detekter scroll-retning baseret på om progress stiger eller falder
+          if (heightProgress > lastScrollProgress) {
+            scrollDirection = 1; // Scroller ned -> højre
+          } else if (heightProgress < lastScrollProgress) {
+            scrollDirection = -1; // Scroller op -> venstre
+          }
+          lastScrollProgress = heightProgress;
+          
+          // Opdater clip-path med nuværende idle offset (fade-out håndteres i fade-out loop)
+          updateClipPath(heightProgress, idleWaveOffset);
+
+          // Tilføj blur effekt til content section elementer
+          const blurAmount = heightProgress * 10;
+          const contentTitle = document.querySelector('.content-title');
+          const contentDescription = document.querySelector('.content-description');
+          const featureContents = document.querySelectorAll('.feature-content');
+
+          if (contentTitle) {
+            contentTitle.style.filter = `blur(${blurAmount}px)`;
+          }
+          if (contentDescription) {
+            contentDescription.style.filter = `blur(${blurAmount}px)`;
+          }
+          featureContents.forEach((featureContent) => {
+            featureContent.style.filter = `blur(${blurAmount}px)`;
+          });
+
+          // Clear tidligere timeout
+          if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+          }
+
+          // Start idle-animation efter kort settle-periode for at undgå jitter
+          scrollTimeout = setTimeout(() => {
+            startIdleAnimation(heightProgress);
+          }, 1);
+        },
+        onLeaveBack: () => {
+          // Stop idle-animation
+          stopIdleAnimation();
+          // Stop fade-out animation
+          if (fadeOutAnimationId) {
+            cancelAnimationFrame(fadeOutAnimationId);
+            fadeOutAnimationId = null;
+          }
+          fadeOutStartTime = null;
+          fadeOutStartOffset = 0;
+          idleWaveOffset = 0;
+          
+          if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+          }
+
+          // Genopret fuld height når man scroller tilbage
+          viewerOverlay.value.style.height = '100vh';
+
+          // Genopret lige kant når man scroller tilbage
+          viewerOverlay.value.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)';
+
+          // Fjern blur effekt når man scroller tilbage
+          const contentTitle = document.querySelector('.content-title');
+          const contentDescription = document.querySelector('.content-description');
+          const featureContents = document.querySelectorAll('.feature-content');
+
+          if (contentTitle) {
+            contentTitle.style.filter = 'blur(0px)';
+          }
+          if (contentDescription) {
+            contentDescription.style.filter = 'blur(0px)';
+          }
+          featureContents.forEach((featureContent) => {
+            featureContent.style.filter = 'blur(0px)';
+          });
+        },
+        id: 'overlay-fade-out',
+        ease: "power3.inOut",
+      });
+    }
+
+
+  }, 500); // 500ms forsinkelse
 
   // Håndter vindues-resize
   window.addEventListener('resize', onWindowResize);
@@ -180,17 +484,29 @@ function createImageSpiral() {
 //
 // -------- OPRETTER VIDEO-PLAN PÅ SPIRALEN --------
 //
+let videoElement = null; // Gem reference til video elementet
+
 function createVideoPlane(onVideoLoaded) {
   const video = document.createElement('video');
   video.src = props.videoSrc;
-  video.autoplay = true;
   video.loop = true;
   video.muted = true;
   video.playsInline = true;
   video.crossOrigin = 'anonymous';
   
+  // Gem reference til video elementet så vi kan kontrollere det senere
+  videoElement = video;
+  
+  // Eksponér video globalt
+  if (typeof window !== 'undefined') {
+    window.flowmateVideo = video;
+  }
+  
   // Vent til videoen har indlæst metadata, så vi kan få dens aspekt ratio
   video.addEventListener('loadedmetadata', () => {
+    // Tving videoen til at spille hele tiden, upåvirket af scroll
+    video.play().catch(err => console.log('Video play fejl:', err));
+    
     const videoTexture = new THREE.VideoTexture(video);
     videoTexture.colorSpace = THREE.SRGBColorSpace;
     videoTexture.minFilter = THREE.LinearFilter;
@@ -238,9 +554,6 @@ function createVideoPlane(onVideoLoaded) {
       onVideoLoaded();
     }
   });
-
-  // Start afspilning
-  video.play().catch(err => console.log('Video autoplay fejl:', err));
 }
 
 //
@@ -258,6 +571,10 @@ function setupScrollAnimation() {
   // Beregn det samlede antal elementer på spiralen (billeder + video)
   const totalElements = props.images.length + (props.videoSrc ? 1 : 0);
 
+  // Video spiller automatisk hele tiden via autoplay
+  let hasZoomedInOnVideo = false; // Track om vi har zoomet ind på videoen
+  const initialCameraZ = props.isMobile ? 75 : 120;
+
   // Opret en GSAP Timeline, der er koblet til scroll-positionen
   const tl = gsap.timeline({
     ease: "none",
@@ -269,6 +586,11 @@ function setupScrollAnimation() {
       onUpdate: (self) => {
         // Fjern fade-out så spiralen forbliver synlig
         viewerOverlay.value.style.opacity = 1;
+        
+        // Ingen blur i viewer-wrapper - alt blur håndteres i content section
+        emit('update-blur', { blur: 0, brightness: 1 });
+        
+        // Video spiller allerede hele tiden via autoplay, ingen manuel start nødvendig
       }
     }
   });
@@ -291,9 +613,10 @@ function setupScrollAnimation() {
   // På mobil zoomer vi kun lidt da der ingen video er
   if (!props.isMobile) {
     tl.to(camera.position, {
-      z: 95, // Zoom ind fra 120 til 95 (kun desktop)
+      z: 98, // Zoom ind fra 120 til 95 (kun desktop)
       ease: "power2.inOut", // Blød start og blød afslutning på zoom
       duration: 0.35, // 35% af tidslinjen
+      onComplete: () => { hasZoomedInOnVideo = true; } // Marker at vi har zoomet ind på videoen
     }, "-=0.05"); // Start 5% før forrige animation slutter for blødere overgang
   } else {
     // På mobil: lav zoom da billederne allerede er tættere på
@@ -301,6 +624,7 @@ function setupScrollAnimation() {
       z: 65, // Zoom ind fra 75 til 65 (mindre zoom på mobil)
       ease: "power2.inOut",
       duration: 0.35,
+      onComplete: () => { hasZoomedInOnVideo = true; } // Marker at vi har zoomet ind på videoen
     }, "-=0.05");
   }
 }
@@ -354,7 +678,36 @@ onMounted(() => {
 onUnmounted(() => {
   cancelAnimationFrame(animationFrameId);
 
+  // Ryd op idle-animation hvis den kører
+  if (idleAnimationId) {
+    cancelAnimationFrame(idleAnimationId);
+    idleAnimationId = null;
+  }
+  // Ryd op fade-out animation hvis den kører
+  if (fadeOutAnimationId) {
+    cancelAnimationFrame(fadeOutAnimationId);
+    fadeOutAnimationId = null;
+  }
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = null;
+  }
+
   ScrollTrigger.getAll().forEach(t => t.kill());
+
+  // Ryd op globale references
+  if (typeof window !== 'undefined') {
+    window.flowmateCamera = null;
+    window.flowmateCameraInitialZ = null;
+    window.flowmateVideo = null;
+  }
+
+  // Stop og ryd op video element
+  if (videoElement) {
+    videoElement.pause();
+    videoElement.src = '';
+    videoElement = null;
+  }
 
   if (spiralGroup) { // <-- NYT: Tjek om gruppen eksisterer
     loadedMeshes.forEach(mesh => {
@@ -399,6 +752,7 @@ onUnmounted(() => {
 
 .three-container {
   width: 100%;
-  height: 100%;
+  height: 90%;
+ 
 }
 </style>
