@@ -1540,6 +1540,7 @@ html, body {
 @media (max-width: 768px) {
   .content-management-section {
     padding: 60px 0 0;
+    margin-top: -300vh;
   }
 
   .content-management-section .grid-container {
