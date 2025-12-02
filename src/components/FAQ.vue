@@ -1,5 +1,5 @@
 <template>
-  <section class="faq-section w-full min-h-screen relative bg-transparent pt-0 pb-24 flex items-center lg:pb-20 md:pb-16 sm:pb-12 -mt-[50rem] lg:-mt-[30rem] md:-mt-60 sm:-mt-48 max-[480px]:-mt-48">
+  <section class="faq-section w-full min-h-screen relative bg-transparent pt-0 pb-24 flex items-center lg:pb-20 md:pb-16 sm:pb-12 -mt-[5rem] lg:-mt-[5rem] md:-mt-8 sm:-mt-6 max-[480px]:-mt-6">
     <div class="grid-container">
       <!-- Row 1: FAQ Eyebrow -->
       <p class="col-start-1 col-span-5 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 row-[1]">
@@ -18,8 +18,8 @@
         v-for="index in [0, 1]"
         :key="index"
         :ref="el => setFaqSquareRef(el, index)"
-            class="faq-square bg-[rgba(3,10,20,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(13,51,89,0.6)] hover:-translate-y-0.5"
-        :class="{ 'is-open bg-[rgba(13,51,89,0.7)]': openIndex === index }"
+            class="faq-square bg-[rgba(115,102,87,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(199,179,153,0.6)] hover:-translate-y-0.5"
+        :class="{ 'is-open bg-[rgba(199,179,153,0.7)]': openIndex === index }"
         @click="toggleItem(index)"
       >
         <div class="w-full h-full flex flex-col">
@@ -47,8 +47,8 @@
         v-for="index in [2, 3]"
         :key="index"
         :ref="el => setFaqSquareRef(el, index)"
-            class="faq-square bg-[rgba(3,10,20,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(13,51,89,0.6)] hover:-translate-y-0.5"
-        :class="{ 'is-open bg-[rgba(13,51,89,0.7)]': openIndex === index }"
+            class="faq-square bg-[rgba(115,102,87,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(199,179,153,0.6)] hover:-translate-y-0.5"
+        :class="{ 'is-open bg-[rgba(199,179,153,0.7)]': openIndex === index }"
         @click="toggleItem(index)"
       >
         <div class="w-full h-full flex flex-col">
@@ -76,8 +76,8 @@
         v-for="index in [4, 5]"
         :key="index"
         :ref="el => setFaqSquareRef(el, index)"
-            class="faq-square bg-[rgba(3,10,20,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(13,51,89,0.6)] hover:-translate-y-0.5"
-        :class="{ 'is-open bg-[rgba(13,51,89,0.7)]': openIndex === index }"
+            class="faq-square bg-[rgba(115,102,87,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(199,179,153,0.6)] hover:-translate-y-0.5"
+        :class="{ 'is-open bg-[rgba(199,179,153,0.7)]': openIndex === index }"
         @click="toggleItem(index)"
       >
         <div class="w-full h-full flex flex-col">

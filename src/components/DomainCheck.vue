@@ -17,39 +17,103 @@
         </h2>
       </div>
 
-      <!-- Right side: Domain Check Form -->
-      <div class="domain-check-right">
-        <h3 ref="checkTitle" class="check-title text-white text-xl font-semibold mb-8">
-          Check Domain Availability
-        </h3>
-        <div ref="domainCheckForm" class="domain-check-form mb-6">
-          <input
-            ref="domainInput"
-            type="text"
-            v-model="domainName"
-            placeholder="Enter domain name"
-            class="domain-input bg-white rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 text-base focus:outline-none focus:ring-2 focus:ring-[rgb(255,100,255)]/50"
-          />
+      <!-- Large Domain Input Field -->
+      <div class="domain-input-container row-[2] col-[1/13] pb-4">
+        <!-- Animated Line -->
+        <div ref="animatedLine" class="animated-line h-0.5 bg-white"></div>
+        <div class="domain-input-wrapper relative flex items-end gap-4">
+          <div class="input-field-wrapper flex-1 relative flex items-end">
+            <input
+              ref="domainInput"
+              type="text"
+              v-model="domainName"
+              placeholder="Enter domain name"
+              @keyup.enter="checkDomain"
+              @focus="isFocused = true"
+              @blur="isFocused = false"
+              class="domain-input-large bg-transparent border-none text-white placeholder-white/30 focus:outline-none transition-colors duration-200 w-full"
+            />
+            <span v-if="domainName" class="domain-suffix text-white/70 text-[7rem] lg:text-[3.5rem] md:text-[2.5rem] sm:text-[2rem] font-normal leading-[1.2] ml-2">.dk</span>
+            <span 
+              v-if="showCursor"
+              class="blinking-cursor"
+            >|</span>
+          </div>
           <button
             ref="searchButton"
             @click="checkDomain"
-            class="search-button bg-[rgb(38,115,179)] text-[#ffffff] border-none rounded-lg px-6 py-3 text-base font-medium cursor-pointer transition-all duration-200 ease hover:bg-[rgb(13,51,89)] focus:outline-none focus:ring-2 focus:ring-[rgb(255,100,255)]/50 whitespace-nowrap"
+            :disabled="isChecking || !domainName.trim()"
+            class="search-button bg-transparent text-white border-none p-3 cursor-pointer transition-all duration-200 ease hover:opacity-70 focus:outline-none mb-1 flex items-center justify-center"
+            :class="isChecking || !domainName.trim() ? 'opacity-30 cursor-not-allowed' : 'opacity-100'"
           >
-            Search
+            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
           </button>
         </div>
+      </div>
+
+      <!-- Domain Note -->
+      <div class="domain-note-container row-[3] col-[1/4]">
         <p ref="domainNote" class="domain-note text-sm text-gray-400">
           Only .dk domains are currently supported.
         </p>
+      </div>
+
+      <!-- Right side: Domain Check Result -->
+      <div class="domain-check-right">
+        <div v-if="isChecking" class="domain-check-result">
+          <div class="flex items-center gap-3">
+            <div class="loading-spinner"></div>
+            <p class="text-white text-lg">Tjekker domæne...</p>
+          </div>
+        </div>
+        <div v-else-if="domainResult" class="domain-check-result">
+          <div v-if="domainResult.available" class="result-available">
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <h3 class="text-white text-xl font-semibold">Domænet er ledigt!</h3>
+            </div>
+            <p class="text-gray-300 text-sm ml-8">{{ domainResult.domain }} er tilgængeligt</p>
+          </div>
+          <div v-else class="result-taken">
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <h3 class="text-white text-xl font-semibold">Domænet er taget</h3>
+            </div>
+            <p class="text-gray-300 text-sm ml-8">{{ domainResult.domain }} er allerede registreret</p>
+          </div>
+        </div>
+        <div v-if="domainError" class="domain-check-result">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-red-400 text-sm">{{ domainError }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const domainName = ref('');
+const isFocused = ref(false);
+const isChecking = ref(false);
+const domainResult = ref(null);
+const domainError = ref(null);
+
+// Vis cursor kun når feltet er tomt og ikke har fokus
+const showCursor = computed(() => {
+  return !isFocused.value && domainName.value === '';
+});
 
 // Expose domain check header ref så parent kan tilgå den
 const domainCheckHeader = ref(null);
@@ -59,6 +123,7 @@ const domainCheckForm = ref(null);
 const domainInput = ref(null);
 const searchButton = ref(null);
 const domainNote = ref(null);
+const animatedLine = ref(null);
 
 // Opdel teksten i individuelle bogstaver
 // Opdel i to dele med linjeskift efter "Lad os komme i gang -"
@@ -75,12 +140,127 @@ defineExpose({
   domainCheckForm,
   domainInput,
   searchButton,
-  domainNote
+  domainNote,
+  animatedLine
 });
 
-const checkDomain = () => {
-  // Domain check logic will go here
-  console.log('Checking domain:', domainName.value);
+const checkDomain = async () => {
+  // Reset previous results
+  domainResult.value = null;
+  domainError.value = null;
+  
+  // Get domain name and ensure it has .dk extension
+  let domain = domainName.value.trim().toLowerCase();
+  
+  // Remove .dk if user included it
+  if (domain.endsWith('.dk')) {
+    domain = domain.replace('.dk', '');
+  }
+  
+  // Validate domain name
+  if (!domain || domain.length === 0) {
+    domainError.value = 'Indtast venligst et domænenavn';
+    return;
+  }
+  
+  // Validate domain format (only letters, numbers, and hyphens)
+  const domainRegex = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/;
+  if (!domainRegex.test(domain)) {
+    domainError.value = 'Ugyldigt domænenavn. Brug kun bogstaver, tal og bindestreger';
+    return;
+  }
+  
+  const fullDomain = `${domain}.dk`;
+  isChecking.value = true;
+  
+  try {
+    // Use a CORS proxy to check domain via DNS lookup
+    // This checks if the domain resolves (which indicates it's registered)
+    // Note: For production, you should use a proper backend API with WHOIS
+    
+    // Try to fetch the domain (this will fail if domain doesn't exist)
+    // We use a simple method: try to load a resource from the domain
+    // If it fails with CORS or network error, domain might be available
+    // If it succeeds or gives DNS error, domain is likely registered
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    
+    try {
+      // Try to fetch from domain (this will trigger DNS lookup)
+      // We use a non-existent path to avoid loading actual content
+      const response = await fetch(`https://${fullDomain}/.well-known/non-existent-path-12345`, {
+        method: 'HEAD',
+        mode: 'no-cors',
+        signal: controller.signal,
+        cache: 'no-cache'
+      });
+      
+      clearTimeout(timeoutId);
+      
+      // If we get here, domain exists (even if request failed, DNS resolved)
+      domainResult.value = {
+        domain: fullDomain,
+        available: false
+      };
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      
+      // Check error type
+      if (fetchError.name === 'AbortError') {
+        // Timeout - domain might not exist
+        // But we can't be sure, so we'll try another method
+        await checkViaAlternativeMethod(fullDomain);
+      } else if (fetchError.message.includes('Failed to fetch') || fetchError.message.includes('NetworkError')) {
+        // Network error - could mean domain doesn't exist
+        // But could also be CORS or other issues
+        // Try alternative method
+        await checkViaAlternativeMethod(fullDomain);
+      } else {
+        // Other error - assume domain might be registered
+        domainResult.value = {
+          domain: fullDomain,
+          available: false
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Error checking domain:', error);
+    domainError.value = 'Der opstod en fejl ved tjekket. Prøv igen senere.';
+  } finally {
+    isChecking.value = false;
+  }
+};
+
+const checkViaAlternativeMethod = async (fullDomain) => {
+  try {
+    // Alternative: Use a public DNS lookup API
+    // Using a free service like cloudflare-dns.com
+    const response = await fetch(`https://cloudflare-dns.com/dns-query?name=${fullDomain}&type=A`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/dns-json',
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      
+      // If we get answers, domain is registered
+      const isAvailable = !data.Answer || data.Answer.length === 0;
+      
+      domainResult.value = {
+        domain: fullDomain,
+        available: isAvailable
+      };
+    } else {
+      // If API fails, show error
+      domainError.value = 'Kunne ikke tjekke domænet. Prøv igen eller kontakt os direkte.';
+    }
+  } catch (error) {
+    console.error('Alternative check failed:', error);
+    domainError.value = 'Kunne ikke tjekke domænet. Prøv igen eller kontakt os direkte.';
+  }
 };
 </script>
 
@@ -92,7 +272,7 @@ const checkDomain = () => {
 }
 
 .domain-check-section .grid-container {
-  margin-top: -30rem;
+  margin-top: -10rem;
   position: relative;
   z-index: 1;
 }
@@ -103,6 +283,125 @@ const checkDomain = () => {
   grid-row: 1;
   position: relative;
   z-index: 1;
+}
+
+.domain-input-container {
+  grid-row: 2;
+  position: relative;
+  z-index: 1;
+  margin-top: 2rem;
+}
+
+.animated-line {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.domain-note-container {
+  grid-row: 3;
+  position: relative;
+  z-index: 1;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .domain-note-container {
+    grid-column: 1 / 13;
+  }
+}
+
+.domain-input-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: end;
+}
+
+.domain-suffix {
+  letter-spacing: -0.02em;
+  pointer-events: none;
+}
+
+.input-field-wrapper {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .domain-input-wrapper {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .search-button {
+    width: 100%;
+    margin-bottom: 0 !important;
+  }
+}
+
+
+.domain-input-large {
+  font-size: 7rem;
+  line-height: 1.2;
+  font-weight: 400;
+  caret-color: rgb(255, 255, 255);
+  letter-spacing: -0.02em;
+}
+
+.blinking-cursor {
+  position: absolute;
+  left: -0.9rem;
+  top: 0;
+  font-size: 7rem;
+  line-height: 1.2;
+  color: white;
+  font-weight: 100;
+  transform: scaleX(0.3);
+  animation: blink 1s infinite;
+  pointer-events: none;
+  letter-spacing: -0.02em;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.domain-input-large::placeholder {
+  opacity: 0.3;
+}
+
+@media (max-width: 1024px) {
+  .domain-input-large {
+    font-size: 3.5rem;
+  }
+  .blinking-cursor {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .domain-input-large {
+    font-size: 2.5rem;
+  }
+  .blinking-cursor {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .domain-input-large {
+    font-size: 2rem;
+  }
+  .blinking-cursor {
+    font-size: 2rem;
+  }
 }
 
 .domain-check-right {
@@ -128,36 +427,74 @@ const checkDomain = () => {
 }
 
 .domain-check-form {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
   gap: 24px;
   align-items: stretch;
 }
 
-.domain-input {
-  grid-column: 1 / 5; /* Spænder over de første 4 kolonner (7-10) */
+.search-button {
   min-height: 3rem;
+  min-width: 3rem;
 }
 
-.search-button {
-  grid-column: 5 / 6; /* Spænder over kolonne 5 (11) */
-  min-height: 3rem;
+.search-button svg {
+  width: 4rem;
+  height: 4rem;
+}
+
+@media (max-width: 1024px) {
+  .search-button svg {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
 }
 
 @media (max-width: 768px) {
-  .domain-check-form {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .domain-input {
-    grid-column: 1 / -1;
-  }
-  
   .search-button {
-    grid-column: 1 / -1;
+    min-width: auto;
     width: 100%;
   }
+  
+.search-button svg {
+  width: 3rem;
+  height: 3rem;
+}
+}
+
+.domain-check-result {
+  margin-top: 2rem;
+  min-height: 60px;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.result-available,
+.result-taken {
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.result-available {
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.result-taken {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 </style>
 

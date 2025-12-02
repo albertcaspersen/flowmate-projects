@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer-section w-full relative bg-[rgb(3,10,20)] border-t border-white/20">
+  <footer class="footer-section w-full relative bg-[rgb(115,102,87)] border-t border-white/20">
     <div class="grid-container">
       <!-- Logo centered in grid -->
       <div class="footer-logo-container col-start-4 col-span-6 md:col-start-1 md:col-span-12 flex justify-center items-center py-12 lg:py-10 md:py-8">
@@ -78,7 +78,7 @@
         <p class="footer-copyright text-white text-sm md:text-xs">
           © 2025 Flowmate. All rights reserved.
         </p>
-        <button class="footer-language bg-[rgb(38,115,179)] hover:bg-[rgb(13,51,89)] text-white text-sm md:text-xs font-medium focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300 border-none cursor-pointer rounded-lg px-6 py-2.5 md:px-5 md:py-2">
+        <button class="footer-language bg-[rgb(115,102,87)] hover:bg-[rgb(199,179,153)] text-white text-sm md:text-xs font-medium focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300 border-none cursor-pointer rounded-lg px-6 py-2.5 md:px-5 md:py-2">
           English
         </button>
       </div>

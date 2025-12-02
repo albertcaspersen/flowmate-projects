@@ -56,6 +56,7 @@ const featureBoxes4Component = ref(null);
 const quoteComponent = ref(null);
 const domainCheckComponent = ref(null);
 const faqComponent = ref(null);
+const stackContainerRef = ref(null);
 
 const updateMobileStatus = () => {
   isMobile.value = window.innerWidth <= 768;
@@ -239,10 +240,11 @@ void main() {
     float v = n1 * 0.55 + n2 * 0.45;
     v = pow(v, 0.7);
 
-vec3 a = vec3(2.60, 0.85, 1.00);  // overfladelys blå
-vec3 b = vec3(0.15, 0.45, 0.70);  // ocean mid-depth
-vec3 c = vec3(0.05, 0.20, 0.35);  // dybhavsblå
-vec3 d = vec3(0.01, 0.04, 0.08);  // absolut abyss mørke
+vec3 a = vec3(0.98, 0.97, 0.94);  // blød hvid highlight – let varm, linen-agtig
+vec3 b = vec3(0.93, 0.88, 0.80);  // creme/off-white stoftone
+vec3 c = vec3(0.78, 0.70, 0.60);  // sandfarvet mellemtonedybde
+vec3 d = vec3(0.45, 0.40, 0.34);  // dyb skygge i varm taupe/sand
+
 
     // Optimized color mixing: precompute smoothstep calls
     float s1 = smoothstep(0.1, 0.4, v);
@@ -493,72 +495,79 @@ onMounted(() => {
     const contentSection = document.querySelector('.content-management-section');
     
     if (contentSection && contentTitle.value) { // && featureBoxes.value) {
-      // Animér hver linje i content-title op når man scroller til sektionen
-      const titleLines = contentTitle.value.querySelectorAll('.content-title-line');
-      
-      // Sæt initial state for alle linjer
-      if (titleLines.length > 0) {
-        gsap.set(titleLines, {
-          opacity: 0,
-          y: 50
-        });
-
-        // Opret en separat timeline der trigger når sektionen nærmer sig viewport
-        ScrollTrigger.create({
-          trigger: contentSection,
-          start: 'top 80%',
-          onEnter: () => {
-            // Animér hver linje sekventielt op
-            const tl = gsap.timeline();
-            titleLines.forEach((line, index) => {
-              tl.to(line, {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: "power3.out"
-              }, index * 0.2); // 0.2s delay mellem hver linje
-            });
-          },
-          once: true,
-          markers: false // Sæt til true for debugging
-        });
-      }
-
-      // Opret en timeline for hele content management sektionen
-      const contentTimeline = gsap.timeline({
-        ease: "expo.inOut",
-        scrollTrigger: {
-          trigger: contentSection,
-          start: 'top top',
-          end: '+=100%', // Reduceret fra 150% til 50% for kortere scroll i content-sektion
-          scrub: 2,
-          pin: true, // Tilbage til at pinne hele sektionen
-          anticipatePin: 0.5,
-          id: 'content-management-pin', // Tilføj ID så vi kan referere til det fra ImageViewer
-        }
+      // Animér content-title op når man scroller til sektionen
+      // Sæt initial state
+      gsap.set(contentTitle.value, {
+        opacity: 0,
+        y: 50
       });
 
-      // Fase 1: Vis indholdet (0-40% af scrollet)
-      contentTimeline.to({}, { duration: 0.4, ease: "expo.inOut" }); // Pause for at læse indholdet
+      // Opret en separat timeline der trigger når sektionen nærmer sig viewport
+      ScrollTrigger.create({
+        trigger: contentSection,
+        start: 'top 80%',
+        onEnter: () => {
+          // Animér teksten op
+          gsap.to(contentTitle.value, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out"
+          });
+        },
+        once: true,
+        markers: false // Sæt til true for debugging
+      });
 
-      // Fase 2: Fade ud tekst og boxes (40-70% af scrollet)
-      // FJERNET: Animation af contentTitle og contentDescription
-      // contentTimeline.to([contentTitle.value, contentDescription.value], {
-      //   opacity: 0,
-      //   y: -30,
-      //   duration: 0.15,
-      // }, 0.4);
+      // Opret en timeline for hele content management sektionen
+      // Brug matchMedia for at håndtere pinning forskelligt på desktop vs mobil
+      const mm = gsap.matchMedia();
+      
+      // Desktop: Pin sektionen
+      mm.add("(min-width: 769px)", () => {
+        const contentTimeline = gsap.timeline({
+          ease: "expo.inOut",
+          scrollTrigger: {
+            trigger: contentSection,
+            start: 'top top',
+            end: '+=100%',
+            scrub: 2,
+            pin: true,
+            anticipatePin: 0.5,
+            id: 'content-management-pin',
+          }
+        });
 
-      // MIDLERTIDIGT DEAKTIVERET: FeatureBoxes animation
-      // contentTimeline.to(featureBoxes.value, {
-      //   opacity: 0,
-      //   y: -30,
-      //   duration: 0.15,
-      //   ease: "expo.inOut",
-      // }, 0.5);
+        // Fase 1: Vis indholdet (0-40% af scrollet)
+        contentTimeline.to({}, { duration: 0.4, ease: "expo.inOut" });
 
-      // Fase 3: Hold sektionen pinned resten af vejen (zoom-out håndteres i ImageViewer.vue)
-      contentTimeline.to({}, { duration: 0.5, ease: "expo.inOut" }, 0.7);
+        // Fase 3: Hold sektionen pinned resten af vejen (zoom-out håndteres i ImageViewer.vue)
+        contentTimeline.to({}, { duration: 0.5, ease: "expo.inOut" }, 0.7);
+      });
+      
+      // Mobil: Ingen pinning
+      mm.add("(max-width: 768px)", () => {
+        const contentTimeline = gsap.timeline({
+          ease: "expo.inOut",
+          scrollTrigger: {
+            trigger: contentSection,
+            start: 'top top',
+            end: '+=100%',
+            scrub: 2,
+            pin: false, // Ingen pinning på mobil
+            id: 'content-management-pin',
+          }
+        });
+
+        // Fase 1: Vis indholdet (0-40% af scrollet)
+        contentTimeline.to({}, { duration: 0.4, ease: "expo.inOut" });
+
+        // Fase 3: Hold sektionen pinned resten af vejen (zoom-out håndteres i ImageViewer.vue)
+        contentTimeline.to({}, { duration: 0.5, ease: "expo.inOut" }, 0.7);
+      });
+      
+      // Ryd op i matchMedia når komponenten unmountes
+      cleanupFunctions.push(() => mm.revert());
     }
 
     // Scroll-baseret farvetransition for FlowmateAI header tekst
@@ -743,11 +752,14 @@ onMounted(() => {
         ].filter(box => box.icon && box.title && box.description); // Fjern null værdier
         
         if (featureBoxes.length > 0) {
-          // Sæt initial state (CSS sætter også opacity: 0, men GSAP skal vide om transform)
+          // Sæt initial state med det samme (CSS sætter også opacity: 0, men GSAP skal vide om transform)
           featureBoxes.forEach(box => {
             gsap.set([box.icon, box.title, box.description], {
               opacity: 0,
-              y: 50
+              y: 50,
+              visibility: 'hidden',
+              force3D: true,
+              immediateRender: true
             });
           });
 
@@ -756,15 +768,30 @@ onMounted(() => {
             trigger: featureBoxesSection,
             start: 'top 40%',
             onEnter: () => {
-              // Animér hver feature box sekventielt (ikon, titel og beskrivelse sammen)
+              // Animér hver feature box sekventielt (ikon starter lidt før titel og beskrivelse)
               const tl = gsap.timeline();
               featureBoxes.forEach((box, index) => {
-                tl.to([box.icon, box.title, box.description], {
+                const baseDelay = index * 0.15; // 0.15s delay mellem hver feature box
+                // Ikon starter lidt før (0.05s tidligere), men aldrig før timeline starter
+                const iconDelay = Math.max(0, baseDelay - 0.05);
+                // Sæt visibility til visible samtidig med at animationen starter
+                tl.set(box.icon, { visibility: 'visible' }, iconDelay);
+                tl.to(box.icon, {
                   opacity: 1,
                   y: 0,
                   duration: 0.8,
-                  ease: "power3.out"
-                }, index * 0.15); // 0.15s delay mellem hver feature box
+                  ease: "power3.out",
+                  force3D: true
+                }, iconDelay);
+                // Titel og beskrivelse starter sammen
+                tl.set([box.title, box.description], { visibility: 'visible' }, baseDelay);
+                tl.to([box.title, box.description], {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.8,
+                  ease: "power3.out",
+                  force3D: true
+                }, baseDelay);
               });
             },
             once: true
@@ -833,33 +860,6 @@ onMounted(() => {
       }
     }
 
-    // Clip-path animation for Quote video - animerer én gang når sektionen kommer ind i viewport
-    if (quoteComponent.value && quoteComponent.value.quoteVideo) {
-      const quoteVideoElement = quoteComponent.value.quoteVideo;
-      const quoteSection = quoteVideoElement.closest('.quote-section');
-      
-      if (quoteSection && quoteVideoElement) {
-        // Sæt initial state - videoen er fuldt clipped fra toppen (0% højde)
-        gsap.set(quoteVideoElement, {
-          clipPath: 'inset(100% 0% 0% 0%)'
-        });
-
-        // Opret ScrollTrigger der animerer én gang når sektionen kommer ind i viewport
-        ScrollTrigger.create({
-          trigger: quoteSection,
-          start: 'top 80%',
-          once: true, // Kør kun én gang
-          onEnter: () => {
-            // Animer clip-path fra 100% (fuldt clipped) til 0% (ingen clipping = 100% højde)
-            gsap.to(quoteVideoElement, {
-              clipPath: 'inset(0% 0% 0% 0%)',
-              duration: 1.5, // Langsom animation
-              ease: 'power2.out' // Smooth easing
-            });
-          }
-        });
-      }
-    }
 
     // Scroll-baseret farvetransition for Domain Check header tekst
     // Samme animation som de andre header tekster
@@ -881,8 +881,8 @@ onMounted(() => {
           // Opret ScrollTrigger for farvetransition
           ScrollTrigger.create({
             trigger: domainCheckSection,
-            start: 'top 80%', // Starter tidligere - når toppen af sektionen nærmer sig viewport
-            end: 'top -20%',  // Slutter senere - giver mere scroll-tid
+            start: 'top 95%', // Starter tidligere - når toppen af sektionen nærmer sig viewport
+            end: 'top -5%',   // Slutter meget tidligere - giver mindre scroll-tid
             scrub: 1,         // Smooth scroll-baseret animation
             onUpdate: (self) => {
               const progress = self.progress;
@@ -918,6 +918,34 @@ onMounted(() => {
             }
           });
         }
+      }
+    }
+
+    // Animation for Domain Check line - animerer fra kolonne 1 til 13
+    if (domainCheckComponent.value && domainCheckComponent.value.animatedLine) {
+      const animatedLineElement = domainCheckComponent.value.animatedLine;
+      const domainCheckSection = animatedLineElement.closest('.domain-check-section');
+      
+      if (domainCheckSection && animatedLineElement) {
+        // Sæt initial state - linjen er skjult (scaleX 0)
+        gsap.set(animatedLineElement, {
+          scaleX: 0
+        });
+
+        // Opret ScrollTrigger der animerer én gang når sektionen kommer ind i viewport
+        ScrollTrigger.create({
+          trigger: domainCheckSection,
+          start: 'top 60%',
+          once: true, // Kør kun én gang
+          onEnter: () => {
+            // Animer linjen fra scaleX(0) til scaleX(1) med ease
+            gsap.to(animatedLineElement, {
+              scaleX: 1,
+              duration: 1.2,
+              ease: 'power2.out' // Smooth easing
+            });
+          }
+        });
       }
     }
 
@@ -1086,6 +1114,17 @@ onMounted(() => {
         });
       }
     }
+
+    // Pin stack container på mobil
+    if (stackContainerRef.value && isMobile.value) {
+      ScrollTrigger.create({
+        trigger: stackContainerRef.value,
+        start: 'top top',
+        end: '+=300vh',
+        pin: true,
+        pinSpacing: true,
+      });
+    }
   }, 100);
 });
 
@@ -1120,7 +1159,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Opdel feature boxes header tekst i individuelle bogstaver
-const featureBoxesHeaderString = 'Fuld webløsning – design, hosting og sikkerhed.';
+const featureBoxesHeaderString = 'Fuld webløsning – design,hosting og sikkerhed.';
 const featureBoxesHeaderChars = featureBoxesHeaderString.split('');
 
 const allImages = [
@@ -1157,26 +1196,29 @@ const imageList = computed(() => {
     <Navbar />
     
     <!-- Header med billede -->
-    <header class="header-section">
-      <div class="grid-container">
-        <div class="hero-content">
+    <header class="header-section max-sm:-mt-8">
+      <div class="grid-container grid max-sm:grid-cols-6">
+        <div class="hero-content max-sm:col-span-6 max-sm:col-start-1">
           <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">FLOWMATE REALTIME EDITOR</p>
           <h1 class="text-[2.25rem] sm:text-[3rem] md:text-[4rem] xl:text-[6rem] font-bold leading-[1.1] mb-6 text-white tracking-[-0.02em]" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">Flowmate er din nye bedste ven.</h1>
-          <p class="text-[0.95rem] sm:text-base lg:text-lg xl:text-xl leading-relaxed text-white/90 font-normal" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">Nåh ja, og realtime frontend editor til headless websites.</p>
+          <p class="text-[0.95rem] sm:text-base lg:text-lg xl:text-xl leading-relaxed text-white/90 font-normal max-sm:max-w-[calc(83.333%-0.75rem)]" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">Nåh ja, og realtime frontend editor til headless websites.</p>
         </div>
       </div>
+      
+      <!-- Stack Container - kun på mobil, UNDER grid-containeren -->
+      <div ref="stackContainerRef" class="hidden max-sm:block w-full max-sm:h-[70vh] border-2 border-[#00ffff] relative"></div>
     </header>
-    
+
     <!-- Scroll indicator - fixed i bunden -->
     <div 
       class="scroll-indicator fixed bottom-6 sm:bottom-8 md:bottom-10 lg:bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-[1000] group"
       :style="{ opacity: heroOpacity }"
     >
-      <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 m-0 group-hover:text-[rgb(255,100,255)] transition-colors">Scroll Ned</p>
+      <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 m-0 group-hover:text-[rgb(199,179,153)] transition-colors">Scroll Ned</p>
       <div class="flex flex-col gap-1 items-center">
-        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(255,100,255)] transition-colors" style="animation-delay: 0s"></span>
-        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(255,100,255)] transition-colors" style="animation-delay: 0.15s"></span>
-        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(255,100,255)] transition-colors" style="animation-delay: 0.3s"></span>
+        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(199,179,153)] transition-colors" style="animation-delay: 0s"></span>
+        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(199,179,153)] transition-colors" style="animation-delay: 0.15s"></span>
+        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(199,179,153)] transition-colors" style="animation-delay: 0.3s"></span>
       </div>
     </div>
 
@@ -1193,7 +1235,7 @@ const imageList = computed(() => {
         :images="imageList" 
         :start-index="startIndex" 
         :visible="true"
-        :video-src="isMobile ? null : 'https://flowmate.dk/wp-content/uploads/2025/05/flowmate-video-editor.mp4'"
+        :video-src="'https://flowmate.dk/wp-content/uploads/2025/05/flowmate-video-editor.mp4'"
         :blur-amount="viewerBlur"
         :brightness="viewerBrightness"
         :is-mobile="isMobile"
@@ -1212,13 +1254,7 @@ const imageList = computed(() => {
           <div class="content-left">
             <p class="content-eyebrow text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0"></p>
             <h2 ref="contentTitle" class="content-title">
-              <span class="content-title-line">Flowmate gør arbejdet med websites og</span>
-              <span class="content-title-line">content management enkelt,hurtigt og helt</span>
-              <span class="content-title-line">uden besvær. Vi tager os af det hele – design,</span>
-              <span class="content-title-line">udvikling, hosting, compliance og sikkerhed –</span>
-              <span class="content-title-line">så du kan fokusere på det sjove:</span>
-              <span class="content-title-line">at skabe smukke og velfungerende websites</span>
-              <span class="content-title-line">uden hovedpiner.</span>
+              Flowmate gør websites og content management enkelt. Vi klarer design, udvikling, hosting og sikkerhed, så du kan skabe flotte og velfungerende sites uden besvær.
             </h2>
           </div>
         </div>
@@ -1232,16 +1268,14 @@ const imageList = computed(() => {
     <FlowmateAI ref="flowmateAIComponent" />
 
     <!-- Feature Boxes Section -->
-    <section class="feature-boxes-section w-full min-h-screen relative bg-transparent pt-0 pb-24 flex items-center lg:pt-0 lg:pb-20 md:pt-0 md:pb-16 sm:pt-0 sm:pb-12 -mt-[40rem] lg:-mt-[30rem] md:-mt-[20rem] sm:-mt-[15rem] z-0">
-      <div class="grid-container mt-48 lg:mt-80 md:mt-32 sm:mt-24">
-        <div class="row-start-1 col-start-1 col-span-4 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 mb-16 lg:mb-0 md:mb-10">
-          <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6">Features</p>
-          <h2 ref="featureBoxesHeader" class="text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] font-bold leading-[1.2] mb-0 text-white">
-            <span v-for="(char, index) in featureBoxesHeaderChars" :key="index" :data-index="index" class="char-span">
-              {{ char === ' ' ? '\u00A0' : char }}
-            </span>
-          </h2>
-        </div>
+    <section class="feature-boxes-section w-full min-h-screen relative bg-transparent pt-0 pb-24 flex items-center lg:pt-0 lg:pb-20 md:pt-0 md:pb-16 sm:pt-0 sm:pb-12 -mt-[40rem] lg:-mt-[30rem] md:-mt-[20rem] sm:-mt-[15rem] max-sm:-mt-16 z-0">
+      <div class="grid-container mt-48 lg:mt-80 md:mt-32 sm:mt-24 max-sm:-mt-8">
+        <p class="row-start-1 col-start-1 col-span-4 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6 lg:mb-6 md:mb-6 max-sm:mb-6">Features</p>
+        <h2 ref="featureBoxesHeader" class="row-start-2 col-start-1 col-span-4 lg:row-start-1 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:col-[1/6] text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-0 lg:mb-0 md:mb-10 text-white feature-boxes-header">
+          <span v-for="(char, index) in featureBoxesHeaderChars" :key="index" :data-index="index" class="char-span">
+            {{ char === ' ' ? '\u00A0' : char }}
+          </span>
+        </h2>
         <FeatureBoxes4 ref="featureBoxes4Component" />
       </div>
     </section>
@@ -1330,6 +1364,7 @@ html, body {
 
 @media (max-width: 768px) {
   .grid-container {
+    grid-template-columns: repeat(6, 1fr);
     width: calc(100% - 5rem); /* 2.5rem på hver side */
     margin: -2rem 2.5rem 0;
     gap: 16px;
@@ -1338,6 +1373,7 @@ html, body {
 
 @media (max-width: 480px) {
   .grid-container {
+    grid-template-columns: repeat(6, 1fr);
     width: calc(100% - 3rem); /* 1.5rem på hver side */
     margin: -2rem 1.5rem 0;
     gap: 12px;
@@ -1362,8 +1398,17 @@ html, body {
   position: relative;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   top: 38rem;
   justify-content: flex-start;
+}
+
+/* Mobil: Juster header-sektionens højde */
+@media (max-width: 640px) {
+  .header-section {
+    height: auto; /* Ændr til auto eller en specifik højde som f.eks. 50vh */
+    min-height: 20vh; /* Minimum højde på mobil */
+  }
 }
 
 
@@ -1447,19 +1492,24 @@ html, body {
   text-align: center;
   grid-row: 2;
   grid-column: 1 / 13; /* Spænder over kolonner 1-5 */
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.content-title-line {
-  display: block;
 }
 
 /* Char span styling for scroll-baseret animation */
 .char-span {
   display: inline-block;
   transition: color 0.1s ease-out;
+}
+
+/* Forhindre ord i at blive brudt på mobil for feature boxes header */
+@media (max-width: 640px) {
+  .feature-boxes-header .char-span {
+    white-space: normal;
+  }
+  .feature-boxes-header {
+    word-break: normal;
+    hyphens: none;
+    overflow-wrap: break-word;
+  }
 }
 
 /* FeatureBoxes styling - gør komponenten transparent for grid */
@@ -1497,12 +1547,15 @@ html, body {
   }
 
   .content-eyebrow {
-    grid-column: 1 / 10;
+    grid-column: 1 / 7; /* Spænder over alle 6 kolonner */
   }
 
   .content-title {
-    font-size: 2.5rem;
-    grid-column: 1 / 10; /* Spænder over kolonner 1-9 */
+    font-size: 2rem;
+    line-height: 1.2;
+    grid-column: 1 / 7; /* Spænder over alle 6 kolonner */
+    padding: 0 1rem;
+    white-space: normal;
   }
 
   .content-management-section .feature-boxes-container {
@@ -1520,7 +1573,12 @@ html, body {
   }
 
   .content-title {
-    font-size: 2rem;
+    font-size: 1.7rem;
+    line-height: 1.3;
+    grid-column: 1 / 7; /* Spænder over alle 6 kolonner */
+    padding: 0 1.5rem;
+    white-space: normal;
+    
   }
 
   .content-management-section .feature-boxes-container {

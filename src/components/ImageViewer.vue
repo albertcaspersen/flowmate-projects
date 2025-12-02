@@ -3,7 +3,7 @@
     <!-- Three.js scene -->
     <div 
       ref="threeContainer" 
-      class="three-container"
+      class="three-container max-sm:hidden"
       :style="{ filter: `blur(${props.blurAmount}px) brightness(${props.brightness})` }"
     ></div>
   </div>
@@ -44,14 +44,16 @@ const loadedMeshes = []; // Til oprydning
 let lastFrameTime = 0;
 const mobileTargetFPS = 30; // Reducer FPS på mobil
 const mobileFrameInterval = 1000 / mobileTargetFPS;
+let hasZoomedInOnVideo = false; // Track om vi har zoomet ind på videoen (globalt scope)
 
 // Idle-animation variabler
 let idleAnimationId = null;
 let scrollTimeout = null;
 let fadeOutAnimationId = null;
+let continuousWaveAnimationId = null; // Kontinuerlig bølge-animation når man scroller
 
 // Bølge-højde kontrol (juster denne værdi for at ændre bølgehøjden)
-const waveAmplitude = ref(7); // Standard værdi: 8. Øg for højere bølger, sænk for lavere bølger
+const waveAmplitude = ref(3); // Standard værdi: 8. Øg for højere bølger, sænk for lavere bølger
 
 // Eksponér kameraet og video globalt så App.vue kan animere det
 if (typeof window !== 'undefined') {
@@ -145,8 +147,8 @@ function initThree() {
           }
           
           // Håndter kameraets zoom-ud i slutningen af animationen
-          // Zoom kun ud hvis vi ikke allerede har zoomet ind på videoen
-          if (self.progress >= 0.8 && !hasZoomedInOnVideo) {
+          // Zoom kun ud hvis vi ikke allerede har zoomet ind på videoen (kun hvis camera eksisterer)
+          if (self.progress >= 0.8 && camera && !hasZoomedInOnVideo) {
             const zoomProgress = (self.progress - 0.7) / 0.3;
             const currentZ = camera.position.z;
 
@@ -176,14 +178,57 @@ function initThree() {
       let fadeOutStartTime = null;
       let fadeOutStartOffset = 0; // Gem start-værdien for fade-out
       let fadeOutDuration = 300; // 300ms fade-out periode (øget for blødere stop)
+      let continuousWaveOffset = 0; // Kontinuerlig bølge-offset baseret på scroll-position
+      let isScrolling = false; // Track om man scroller
+      let scrollStartTime = 0; // Tidspunkt hvor scrolling startede
+      let currentHeightProgress = 0; // Gem nuværende heightProgress for kontinuerlig animation
+
+      // Funktion til at starte kontinuerlig bølge-animation når man scroller
+      const startContinuousWaveAnimation = (heightProgress) => {
+        currentHeightProgress = heightProgress; // Gem heightProgress
+        if (continuousWaveAnimationId) return; // Allerede kører
+        
+        scrollStartTime = performance.now();
+        isScrolling = true;
+        
+        const animate = (currentTime) => {
+          if (!isScrolling) {
+            continuousWaveAnimationId = null;
+            return;
+          }
+          
+          // Beregn kontinuerlig offset baseret på tid og scroll-position
+          const elapsed = currentTime - scrollStartTime;
+          // Brug både scroll-position og tid for kontinuerlig bevægelse
+          continuousWaveOffset = currentHeightProgress * 16 + (elapsed * 0.02); // Juster 0.02 for hastighed
+          
+          // Opdater clip-path med kontinuerlig animation
+          updateClipPath(currentHeightProgress, idleWaveOffset);
+          
+          continuousWaveAnimationId = requestAnimationFrame(animate);
+        };
+        
+        continuousWaveAnimationId = requestAnimationFrame(animate);
+      };
+
+      // Funktion til at stoppe kontinuerlig bølge-animation
+      const stopContinuousWaveAnimation = () => {
+        isScrolling = false;
+        if (continuousWaveAnimationId) {
+          cancelAnimationFrame(continuousWaveAnimationId);
+          continuousWaveAnimationId = null;
+        }
+      };
 
       // Funktion til at opdatere clip-path med idle-animation
       const updateClipPath = (heightProgress, waveOffset = 0) => {
+        if (!viewerOverlay.value) return; // Sikr at viewerOverlay eksisterer
         const newHeight = (1 - heightProgress) * 100;
         viewerOverlay.value.style.height = `${newHeight}vh`;
 
-        // Kombiner scroll-baseret waveOffset med idle-animation offset
-        const totalWaveOffset = heightProgress * 16 + waveOffset;
+        // Kombiner scroll-baseret waveOffset med idle-animation offset og kontinuerlig bølge-animation
+        // Bruger continuousWaveOffset for kontinuerlig bevægelse i stedet for statisk heightProgress * 16
+        const totalWaveOffset = continuousWaveOffset + waveOffset;
         const baseY = 100 - heightProgress * 100;
 
         const points = [];
@@ -203,6 +248,8 @@ function initThree() {
       // Funktion til idle-animation (skvulpe-effekt)
       const startIdleAnimation = (targetProgress) => {
         if (isIdleAnimating) return;
+        // Stop kontinuerlig bølge-animation når idle-animation starter
+        stopContinuousWaveAnimation();
         isIdleAnimating = true;
         
         let startTime = performance.now();
@@ -315,6 +362,7 @@ function initThree() {
           stopIdleAnimation();
           
           const heightProgress = self.progress;
+          currentHeightProgress = heightProgress; // Opdater nuværende heightProgress
           // Detekter scroll-retning baseret på om progress stiger eller falder
           if (heightProgress > lastScrollProgress) {
             scrollDirection = 1; // Scroller ned -> højre
@@ -323,8 +371,10 @@ function initThree() {
           }
           lastScrollProgress = heightProgress;
           
-          // Opdater clip-path med nuværende idle offset (fade-out håndteres i fade-out loop)
-          updateClipPath(heightProgress, idleWaveOffset);
+          // Start kontinuerlig bølge-animation når man scroller (hvis den ikke allerede kører)
+          if (!continuousWaveAnimationId) {
+            startContinuousWaveAnimation(heightProgress);
+          }
 
           // Tilføj blur effekt til content section elementer
           const blurAmount = heightProgress * 10;
@@ -353,6 +403,8 @@ function initThree() {
           }, 1);
         },
         onLeaveBack: () => {
+          // Stop kontinuerlig bølge-animation
+          stopContinuousWaveAnimation();
           // Stop idle-animation
           stopIdleAnimation();
           // Stop fade-out animation
@@ -363,16 +415,19 @@ function initThree() {
           fadeOutStartTime = null;
           fadeOutStartOffset = 0;
           idleWaveOffset = 0;
+          continuousWaveOffset = 0; // Nulstil kontinuerlig bølge-offset
           
           if (scrollTimeout) {
             clearTimeout(scrollTimeout);
           }
 
           // Genopret fuld height når man scroller tilbage
-          viewerOverlay.value.style.height = '100vh';
+          if (viewerOverlay.value) {
+            viewerOverlay.value.style.height = '100vh';
 
-          // Genopret lige kant når man scroller tilbage
-          viewerOverlay.value.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)';
+            // Genopret lige kant når man scroller tilbage
+            viewerOverlay.value.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)';
+          }
 
           // Fjern blur effekt når man scroller tilbage
           const contentTitle = document.querySelector('.content-title');
@@ -504,6 +559,15 @@ function createVideoPlane(onVideoLoaded) {
   
   // Vent til videoen har indlæst metadata, så vi kan få dens aspekt ratio
   video.addEventListener('loadedmetadata', () => {
+    // Sæt videoen til at starte på 20 sekunder (0:20)
+    video.currentTime = 14;
+    
+    // Når videoen slutter, start den fra 0:20 igen i stedet for 0:00
+    video.addEventListener('ended', () => {
+      video.currentTime = 0;
+      video.play().catch(err => console.log('Video play fejl:', err));
+    });
+    
     // Tving videoen til at spille hele tiden, upåvirket af scroll
     video.play().catch(err => console.log('Video play fejl:', err));
     
@@ -572,7 +636,6 @@ function setupScrollAnimation() {
   const totalElements = props.images.length + (props.videoSrc ? 1 : 0);
 
   // Video spiller automatisk hele tiden via autoplay
-  let hasZoomedInOnVideo = false; // Track om vi har zoomet ind på videoen
   const initialCameraZ = props.isMobile ? 75 : 120;
 
   // Opret en GSAP Timeline, der er koblet til scroll-positionen
@@ -585,7 +648,9 @@ function setupScrollAnimation() {
       scrub: props.isMobile ? 0.5 : 1, // Lavere værdi på mobil for bedre performance
       onUpdate: (self) => {
         // Fjern fade-out så spiralen forbliver synlig
-        viewerOverlay.value.style.opacity = 1;
+        if (viewerOverlay.value) {
+          viewerOverlay.value.style.opacity = 1;
+        }
         
         // Ingen blur i viewer-wrapper - alt blur håndteres i content section
         emit('update-blur', { blur: 0, brightness: 1 });
@@ -665,12 +730,13 @@ function onWindowResize() {
 
 
 
+
 //
 // -------- LIFECYCLE HOOKS --------
 //
 onMounted(() => {
-  // Initialiser Three.js
-  if (threeContainer.value) {
+  // Initialiser Three.js (kun desktop)
+  if (threeContainer.value && !props.isMobile) {
       initThree();
   }
 });
@@ -678,6 +744,11 @@ onMounted(() => {
 onUnmounted(() => {
   cancelAnimationFrame(animationFrameId);
 
+  // Ryd op kontinuerlig bølge-animation hvis den kører
+  if (continuousWaveAnimationId) {
+    cancelAnimationFrame(continuousWaveAnimationId);
+    continuousWaveAnimationId = null;
+  }
   // Ryd op idle-animation hvis den kører
   if (idleAnimationId) {
     cancelAnimationFrame(idleAnimationId);

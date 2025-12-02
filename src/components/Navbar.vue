@@ -1,10 +1,10 @@
 <template>
-  <nav class="navbar">
-    <div class="navbar-grid">
+  <nav class="fixed top-0 left-0 right-0 z-[1000] py-8 max-sm:py-3 max-sm:mt-4">
+    <div class="grid grid-cols-12 max-sm:grid-cols-6 gap-6 max-sm:gap-3 w-[calc(100%-10rem)] max-sm:w-[calc(100%-3rem)] mx-[5rem] max-sm:mx-[1.5rem] items-center">
       <!-- Logo til venstre -->
-      <div class="navbar-brand">
-        <div class="logo">
-          <svg width="240" height="44" viewBox="0 0 240 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="col-span-6 max-sm:col-span-2 flex items-center">
+        <div class="h-12 max-sm:h-7 text-white flex items-center justify-start">
+          <svg width="240" height="44" viewBox="0 0 240 44" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-full w-auto">
             <defs>
               <clipPath id="clip0_2070_751">
                 <rect width="240" height="44" fill="white"/>
@@ -33,8 +33,11 @@
       </div>
 
       <!-- Knapper til højre - hver med sin grid position -->
-      <button class="btn-primary">Kom i gang</button>
-      <button class="btn-secondary">English</button>
+      <button class="col-span-1 col-start-11 max-sm:col-span-1 max-sm:col-start-5 bg-[rgb(115,102,87)] text-white border-none rounded-lg max-sm:rounded-md py-[0.625rem] max-sm:py-[0.375rem] px-[0.625rem] max-sm:px-0 text-[0.95rem] max-sm:text-[0.7rem] font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[rgb(199,179,153)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(199,179,153,0.5)]">
+        <span class="max-sm:hidden">Kom i gang</span>
+        <span class="hidden max-sm:inline">Prøv nu</span>
+      </button>
+      <button class="col-span-1 col-start-12 max-sm:col-span-1 max-sm:col-start-6 bg-[rgb(115,102,87)] text-white rounded-lg max-sm:rounded-md py-[0.625rem] max-sm:py-[0.375rem] px-[0.625rem] max-sm:px-0 text-[0.95rem] max-sm:text-[0.7rem] max-sm:text-center font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[rgb(199,179,153)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(199,179,153,0.5)]">English</button>
     </div>
   </nav>
 </template>
@@ -42,150 +45,4 @@
 <script setup>
 // Komponenten kan modtage props hvis nødvendigt
 </script>
-
-<style scoped>
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  padding: 2rem 0;
-}
-
-.navbar-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 24px;
-  width: calc(100% - 10rem); /* 5rem på hver side */
-  margin: 0 5rem; /* 5rem margin til venstre og højre */
-  align-items: center;
-}
-
-.navbar-brand {
-  grid-column: 1 / 7; /* Spænder over de første 6 kolonner */
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  height: 3rem;
-  /*color: #d4f44a;*/
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.logo svg {
-  height: 100%;
-  width: auto;
-}
-
-.btn-primary {
-  grid-column: 11 / 12; /* Ændre disse tal for at flytte knappen */
-  background-color: rgb(38, 115, 179); /* Ocean mid-depth blå */
-  color: #ffffff; /* Hvid tekst */
-  border: none;
-  border-radius: 8px;
-  padding: 10px 10px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.btn-primary:hover {
-  background-color: rgb(13, 51, 89); /* Dybhavsblå */
-}
-
-.btn-primary:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 217, 255, 0.5);
-}
-
-.btn-secondary {
-  grid-column: 12 / 13; /* Ændre disse tal for at flytte knappen */
-  background-color: rgb(38, 115, 179); /* Ocean mid-depth blå */
-  color: #ffffff; /* Hvid tekst */
-  border-radius: 8px;
-  padding: 10px 10px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.btn-secondary:hover {
-  background-color: rgb(13, 51, 89); /* Dybhavsblå */
-}
-
-.btn-secondary:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 217, 255, 0.5);
-}
-
-/* Responsive design */
-@media (max-width: 1024px) {
-  .navbar-grid {
-    width: calc(100% - 8rem); /* 4rem på hver side */
-    margin: 0 4rem;
-    gap: 20px;
-  }
-}
-
-@media (max-width: 768px) {
-  .navbar {
-    padding: 12px 0;
-  }
-  
-  .navbar-grid {
-    width: calc(100% - 5rem); /* 2.5rem på hver side */
-    margin: 0 2.5rem;
-    gap: 16px;
-  }
-  
-  .navbar-brand {
-    grid-column: 1 / 8; /* Større på små skærme */
-  }
-
-  .btn-primary {
-    grid-column: 9 / 11;
-    padding: 8px 16px;
-    font-size: 0.85rem;
-  }
-  
-  .btn-secondary {
-    grid-column: 11 / 13;
-    padding: 8px 16px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .navbar-grid {
-    width: calc(100% - 3rem); /* 1.5rem på hver side */
-    margin: 0 1.5rem;
-    gap: 12px;
-  }
-  
-  .navbar-brand {
-    grid-column: 1 / 8;
-  }
-  
-  .btn-primary {
-    grid-column: 9 / 11;
-    padding: 6px 12px;
-    font-size: 0.8rem;
-  }
-  
-  .btn-secondary {
-    grid-column: 11 / 13;
-    padding: 6px 12px;
-    font-size: 0.8rem;
-  }
-}
-</style>
 
