@@ -1,8 +1,8 @@
 <template>
   <section class="quote-section w-full min-h-screen relative bg-transparent py-24 flex items-center lg:py-20 md:py-16 sm:py-12">
     <div class="grid-container">
-      <div class="quote-content row-start-1 col-start-3 col-span-4 lg:col-start-7 lg:col-span-5 md:col-start-1 md:col-span-12 md:row-start-1 relative z-10">
-        <blockquote ref="quoteText" class="quote-text text-[2rem] lg:text-[3rem] md:text-[1.5rem] sm:text-[1.25rem] font-medium leading-[1.4] mb-6 text-white italic mt-52">
+      <div class="quote-content row-start-1 col-start-3 col-span-4 lg:col-start-7 lg:col-span-5 md:col-start-1 md:col-span-12 md:row-start-1 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-start-2 relative z-10">
+        <blockquote ref="quoteText" class="quote-text text-[2rem] lg:text-[3rem] md:text-[1.5rem] sm:text-[1.25rem] font-medium leading-[1.4] mb-6 text-white italic mt-52 max-sm:mt-0">
           <template v-for="(char, index) in quoteTextChars" :key="index">
             <span v-if="isRedigereStart(index)" class="no-break">
               <span v-for="(c, i) in getRedigereChars(index)" :key="i" :data-index="index + i" class="char-span">
@@ -18,7 +18,7 @@
           Katrine S. Hansen, Social Media & PR
         </p>
       </div>
-      <div class="quote-video row-start-1 col-start-7 col-span-5 lg:col-start-5 lg:col-span-4 md:col-start-1 md:col-span-12 md:row-start-1 md:mt-0">
+      <div class="quote-video row-start-1 col-start-7 col-span-5 lg:col-start-5 lg:col-span-4 md:col-start-1 md:col-span-12 md:row-start-1 md:mt-0 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-start-1">
         <video 
           ref="quoteVideo"
           class="w-full h-auto rounded-lg"

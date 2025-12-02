@@ -1,12 +1,13 @@
 <template>
   <section class="domain-check-section w-full min-h-screen relative bg-transparent py-6 flex items-center lg:py-5 md:py-4 sm:py-3">
     <div class="grid-container">
-      <!-- Left side: Eyebrow and Header -->
-      <div class="domain-check-left row-[1] col-start-1 col-span-5 lg:col-start-1 lg:col-span-6 md:col-start-1 md:col-span-12">
-        <p ref="eyebrow" class="domain-check-eyebrow text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6">
-          DOMAIN CHECKER
-        </p>
-        <h2 ref="domainCheckHeader" class="domain-check-header text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] font-bold leading-[1.2] mb-8 text-white relative z-10">
+      <!-- Eyebrow -->
+      <p ref="eyebrow" class="domain-check-eyebrow row-[1] col-start-1 col-span-5 lg:col-start-1 lg:col-span-6 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-[1] text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6 max-sm:mb-6">
+        DOMAIN CHECKER
+      </p>
+      
+      <!-- Header -->
+      <h2 ref="domainCheckHeader" class="domain-check-header row-[1] col-start-1 col-span-5 lg:col-start-1 lg:col-span-6 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-[2] text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-8 max-sm:mb-0 text-white relative z-10">
           <span v-for="(char, index) in domainCheckHeaderCharsPart1" :key="`part1-${index}`" :data-index="index" class="char-span">
             {{ char === ' ' ? '\u00A0' : char }}
           </span>
@@ -15,10 +16,9 @@
             {{ char === ' ' ? '\u00A0' : char }}
           </span>
         </h2>
-      </div>
 
       <!-- Large Domain Input Field -->
-      <div class="domain-input-container row-[2] col-[1/13] pb-4">
+      <div class="domain-input-container row-[2] col-[1/13] max-sm:col-[1/7] max-sm:row-[3] pb-4">
         <!-- Animated Line -->
         <div ref="animatedLine" class="animated-line h-0.5 bg-white"></div>
         <div class="domain-input-wrapper relative flex items-end gap-4">
@@ -33,17 +33,17 @@
               @blur="isFocused = false"
               class="domain-input-large bg-transparent border-none text-white placeholder-white/30 focus:outline-none transition-colors duration-200 w-full"
             />
-            <span v-if="domainName" class="domain-suffix text-white/70 text-[7rem] lg:text-[3.5rem] md:text-[2.5rem] sm:text-[2rem] font-normal leading-[1.2] ml-2">.dk</span>
+            <span v-if="domainName" class="domain-suffix text-white/70 text-[7rem] lg:text-[3.5rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.25rem] font-normal leading-[1.2] ml-2">.dk</span>
             <span 
               v-if="showCursor"
               class="blinking-cursor"
             >|</span>
           </div>
           <button
-            ref="searchButton"
+            ref="searchButtonDesktop"
             @click="checkDomain"
             :disabled="isChecking || !domainName.trim()"
-            class="search-button bg-transparent text-white border-none p-3 cursor-pointer transition-all duration-200 ease hover:opacity-70 focus:outline-none mb-1 flex items-center justify-center"
+            class="search-button-desktop bg-transparent text-white border-none p-3 cursor-pointer transition-all duration-200 ease hover:opacity-70 focus:outline-none mb-1 flex items-center justify-center"
             :class="isChecking || !domainName.trim() ? 'opacity-30 cursor-not-allowed' : 'opacity-100'"
           >
             <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -54,7 +54,7 @@
       </div>
 
       <!-- Domain Note -->
-      <div class="domain-note-container row-[3] col-[1/4]">
+      <div class="domain-note-container row-[3] col-[1/4] max-sm:col-[1/7] max-sm:row-[4]">
         <p ref="domainNote" class="domain-note text-sm text-gray-400">
           Only .dk domains are currently supported.
         </p>
@@ -277,19 +277,18 @@ const checkViaAlternativeMethod = async (fullDomain) => {
   z-index: 1;
 }
 
-.domain-check-left {
-  display: flex;
-  flex-direction: column;
-  grid-row: 1;
-  position: relative;
-  z-index: 1;
-}
 
 .domain-input-container {
   grid-row: 2;
   position: relative;
   z-index: 1;
   margin-top: 2rem;
+}
+
+@media (max-width: 640px) {
+  .domain-input-container {
+    grid-row: 3;
+  }
 }
 
 .animated-line {
@@ -314,6 +313,13 @@ const checkViaAlternativeMethod = async (fullDomain) => {
   }
 }
 
+@media (max-width: 640px) {
+  .domain-note-container {
+    grid-column: 1 / 7;
+    grid-row: 4;
+  }
+}
+
 .domain-input-wrapper {
   width: 100%;
   display: flex;
@@ -329,13 +335,23 @@ const checkViaAlternativeMethod = async (fullDomain) => {
   flex: 1;
 }
 
+.search-button-desktop {
+  display: flex;
+}
+
+@media (max-width: 640px) {
+  .search-button-desktop {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .domain-input-wrapper {
     flex-direction: column;
     gap: 1rem;
   }
   
-  .search-button {
+  .domain-input-wrapper .search-button {
     width: 100%;
     margin-bottom: 0 !important;
   }
@@ -423,6 +439,14 @@ const checkViaAlternativeMethod = async (fullDomain) => {
   .domain-check-right {
     grid-column: 1 / 13 !important; /* Fuld bredde på mobile */
     margin-top: 3rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .domain-check-right {
+    grid-column: 1 / 7 !important; /* 6 column grid på mobil */
+    grid-row: 5 !important; /* Row 5 på mobil */
+    margin-top: 0 !important; /* Fjern margin-top på mobil */
   }
 }
 

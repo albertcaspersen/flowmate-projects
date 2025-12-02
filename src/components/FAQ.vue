@@ -2,12 +2,12 @@
   <section class="faq-section w-full min-h-screen relative bg-transparent pt-0 pb-24 flex items-center lg:pb-20 md:pb-16 sm:pb-12 -mt-[5rem] lg:-mt-[5rem] md:-mt-8 sm:-mt-6 max-[480px]:-mt-6">
     <div class="grid-container">
       <!-- Row 1: FAQ Eyebrow -->
-      <p class="col-start-1 col-span-5 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 row-[1]">
+      <p class="col-start-1 col-span-5 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6 max-sm:mb-6 row-[1]">
         FAQ
       </p>
       
       <!-- Row 2: FAQ Header -->
-      <h2 ref="faqHeader" class="col-start-1 col-span-5 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] font-bold leading-[1.2] mb-8 text-white row-[2]">
+      <h2 ref="faqHeader" class="col-start-1 col-span-5 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-8 text-white row-[2]">
         <span v-for="(char, index) in faqHeaderChars" :key="index" :data-index="index" class="char-span">
           {{ char === ' ' ? '\u00A0' : char }}
         </span>
