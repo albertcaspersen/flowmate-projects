@@ -2,9 +2,9 @@
   <footer class="footer-section w-full relative bg-[rgb(115,102,87)] border-t border-white/20">
     <div class="grid-container">
       <!-- Logo centered in grid -->
-      <div class="footer-logo-container col-start-4 col-span-6 md:col-start-1 md:col-span-12 flex justify-center items-center py-12 lg:py-10 md:py-8">
-        <div class="footer-logo text-white flex items-center gap-4">
-          <svg class="w-[48rem] h-36 lg:w-[40rem] lg:h-32 md:w-[32rem] md:h-24 sm:w-80 sm:h-16" viewBox="0 0 240 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="footer-logo-container col-start-4 col-span-6 md:col-start-1 md:col-span-12 max-sm:contents flex justify-center items-center py-12 lg:py-10 md:py-8">
+        <div class="footer-logo text-white flex items-center gap-4 max-sm:col-start-1 max-sm:col-span-6 max-sm:py-8 max-sm:mt-6">
+          <svg class="w-[48rem] h-36 lg:w-[40rem] lg:h-32 md:w-[32rem] md:h-24 sm:w-80 sm:h-16 max-sm:w-[calc(100%+8px)] max-sm:h-auto" viewBox="0 0 240 44" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <clipPath id="clip0_footer">
                   <rect width="240" height="44" fill="white"/>
@@ -33,10 +33,10 @@
       </div>
 
       <!-- Contact Information Section -->
-      <div class="footer-content col-start-1 col-span-12 pb-8 border-b border-white/20">
-        <div class="grid grid-cols-12 gap-8 lg:gap-6 md:gap-4">
+      <div class="footer-content col-start-1 col-span-12 max-sm:col-start-1 max-sm:col-span-6 pb-8 border-b border-white/20">
+        <div class="grid grid-cols-12 max-sm:grid-cols-6 gap-8 lg:gap-6 md:gap-4">
           <!-- Email and Social -->
-          <div class="col-span-6 md:col-span-12">
+          <div class="col-span-6 md:col-span-12 max-sm:col-span-6">
             <div class="space-y-6 md:space-y-4">
               <a href="mailto:hello@flowmate.dk" class="footer-link text-white text-lg md:text-base font-medium hover:text-white/80 transition-all duration-300 inline-block hover:translate-x-1">
                 hello@flowmate.dk
@@ -65,7 +65,7 @@
           </div>
 
           <!-- Phone Number -->
-          <div class="col-span-6 md:col-span-12 md:text-left text-right">
+          <div class="col-span-6 md:col-span-12 max-sm:col-span-6 md:text-left text-right">
             <a href="tel:+4571747426" class="footer-link text-white text-lg md:text-base font-medium hover:text-white/80 transition-all duration-300 inline-block hover:translate-x-[-4px] md:hover:translate-x-1">
               +45 71 7474 26
             </a>
@@ -74,7 +74,7 @@
       </div>
 
       <!-- Bottom Row: Copyright and Language -->
-      <div class="footer-bottom col-start-1 col-span-12 py-8 flex justify-between items-center md:flex-col md:items-start md:gap-6 md:py-6">
+      <div class="footer-bottom col-start-1 col-span-12 max-sm:col-start-1 max-sm:col-span-6 py-8 flex justify-between items-center md:flex-col md:items-start md:gap-6 md:py-6">
         <p class="footer-copyright text-white text-sm md:text-xs">
           © 2025 Flowmate. All rights reserved.
         </p>
@@ -170,5 +170,6 @@
 .footer-language:active {
   transform: scale(0.98);
 }
+
 </style>
 
