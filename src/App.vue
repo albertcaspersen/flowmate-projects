@@ -13,8 +13,13 @@ import Footer from './components/Footer.vue';
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { provideI18n, injectI18n } from './composables/useI18n';
 
 gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
+
+// Provide i18n for all components
+const i18n = provideI18n();
+const { t } = i18n;
 
 
 // Mediefiler fra public mappen
@@ -46,6 +51,7 @@ const showPreloader = ref(true);
 const webglTextureLoaded = ref(false);
 const spiralImagesLoaded = ref(false);
 const preloaderRef = ref(null);
+const imageViewerRef = ref(null);
 
 // Refs til content management animation
 const contentTitle = ref(null);
@@ -74,43 +80,21 @@ const handleBlurUpdate = ({ blur, brightness }) => {
   viewerBrightness.value = brightness;
 };
 
-// Warm-up scroll funktion til at "prime" GPU'en
-const warmUpScroll = () => {
-  // Temporarily enable scrolling for warm-up
-  document.body.style.overflowY = 'auto';
-  document.documentElement.style.overflowY = 'auto';
-  
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  
-  // Use GSAP to smoothly scroll through the page
-  const tl = gsap.timeline({
-    onComplete: () => {
-      // Disable scrolling again until preloader completes
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    }
-  });
-  
-  // Scroll kun 10% ned og så op igen
-  tl.to(window, {
-    scrollTo: maxScroll * 0.2, // Kun 10% ned
-    duration: 0.3,
-    ease: 'none'
-  })
-  .to(window, {
-    scrollTo: 0, // Tilbage til top
-    duration: 0.3,
-    ease: 'none'
-  });
+// Handle when ImageViewer is initialized
+const handleImageViewerInitialized = () => {
+  // Three.js is now initialized and GPU is warmed up
+  // Refresh ScrollTrigger to pre-calculate positions
+  if (typeof ScrollTrigger !== 'undefined') {
+    ScrollTrigger.refresh();
+  }
 };
 
 // Tjek om alt er loadet
 const checkIfAllLoaded = () => {
   if (webglTextureLoaded.value && spiralImagesLoaded.value) {
-    // Kør warm-up scroll først
-    warmUpScroll();
-
+    // GPU warmup is now handled automatically by ImageViewer when textures load
     // Vent på at progress bar når 100% (3s) + lidt ekstra tid
+    // This gives time for GPU warmup to complete (warmup takes ~300-400ms for 20 frames)
     setTimeout(() => {
       isLoading.value = false;
     }, 3300);
@@ -138,6 +122,14 @@ const handlePreloaderComplete = () => {
     hideScrollbarStyle.remove();
   }
 
+  // Nulstil scroll position før vi re-enable scrolling
+  const resetScroll = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+  resetScroll();
+
   // Re-enable scrolling - use overflow-x hidden, overflow-y auto
   document.body.style.overflow = '';
   document.documentElement.style.overflow = '';
@@ -145,6 +137,27 @@ const handlePreloaderComplete = () => {
   document.body.style.overflowY = 'auto';
   document.documentElement.style.overflowX = 'hidden';
   document.documentElement.style.overflowY = 'auto';
+
+  // Nulstil scroll igen efter scrolling er enabled
+  requestAnimationFrame(() => {
+    resetScroll();
+    // Nulstil spiral position hvis den eksisterer
+    if (window.flowmateCamera) {
+      const camera = window.flowmateCamera;
+      const initialZ = window.flowmateCameraInitialZ || 120;
+      camera.position.z = initialZ;
+      camera.position.y = 175;
+      camera.lookAt(0, 0, 0);
+      
+      // Nulstil spiral rotation hvis den eksisterer
+      if (window.flowmateSpiralGroup) {
+        window.flowmateSpiralGroup.rotation.y = -Math.PI * 1.4;
+      }
+    }
+    
+    // Refresh ScrollTrigger efter scroll nulstilling
+    ScrollTrigger.refresh();
+  });
 
   console.log('Scrolling enabled');
 };
@@ -324,11 +337,26 @@ onMounted(() => {
   updateMobileStatus();
   window.addEventListener('resize', updateMobileStatus);
 
-  // Scroll til toppen med instant behavior
-  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  // Scroll til toppen med instant behavior - gentag flere gange for at sikre det virker
+  const resetScroll = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+  
+  // Nulstil scroll position flere gange for at sikre det virker
+  resetScroll();
+  requestAnimationFrame(() => {
+    resetScroll();
+    requestAnimationFrame(() => {
+      resetScroll();
+    });
+  });
   
   // Sikr også at scroll position er 0 ved page load
-  if (window.scrollY > 0) window.scrollTo(0, 0);
+  if (window.scrollY > 0 || document.documentElement.scrollTop > 0 || document.body.scrollTop > 0) {
+    resetScroll();
+  }
 
   // --------------- START: WebGL Initialisering ---------------
 
@@ -494,37 +522,249 @@ onMounted(() => {
   setTimeout(() => {
     const contentSection = document.querySelector('.content-management-section');
     
-    if (contentSection && contentTitle.value) { // && featureBoxes.value) {
-      // Animér content-title op når man scroller til sektionen
-      // Sæt initial state
-      gsap.set(contentTitle.value, {
-        opacity: 0,
-        y: 50
-      });
-
-      // Opret en separat timeline der trigger når sektionen nærmer sig viewport
-      ScrollTrigger.create({
-        trigger: contentSection,
-        start: 'top 80%',
-        onEnter: () => {
-          // Animér teksten op
-          gsap.to(contentTitle.value, {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: "power3.out"
-          });
-        },
-        once: true,
-        markers: false // Sæt til true for debugging
-      });
-
+    if (contentSection && contentTitle.value) {
+      // Funktion til at opdele tekst i linjer baseret på faktisk rendering
+      const splitTextIntoLines = (element) => {
+        // Gem original HTML (kan indeholde <br> tags)
+        const originalHTML = element.innerHTML;
+        
+        // Parse HTML'en og ekstraher både tekst og <br> tags
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = originalHTML;
+        
+        // Saml alle tekst-noder og <br> tags i rækkefølge
+        const nodes = [];
+        const walker = document.createTreeWalker(
+          tempDiv,
+          NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+          {
+            acceptNode: (node) => {
+              if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                return NodeFilter.FILTER_ACCEPT;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
+                return NodeFilter.FILTER_ACCEPT;
+              }
+              return NodeFilter.FILTER_SKIP;
+            }
+          }
+        );
+        
+        let node;
+        while (node = walker.nextNode()) {
+          nodes.push(node);
+        }
+        
+        // Ryd elementet og genopbyg med spans for at måle faktiske linjer
+        element.innerHTML = '';
+        
+        // Tilføj alle tekst-noder og <br> tags som spans/elementer
+        nodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
+            // Tilføj <br> som et element vi kan måle
+            const br = document.createElement('br');
+            element.appendChild(br);
+          } else if (node.nodeType === Node.TEXT_NODE) {
+            // Split tekst i ord og tilføj hvert ord som et span
+            const text = node.textContent;
+            const words = text.split(/\s+/).filter(w => w.length > 0);
+            
+            words.forEach((word, index) => {
+              const span = document.createElement('span');
+              span.textContent = word + (index < words.length - 1 ? ' ' : '');
+              span.style.display = 'inline';
+              element.appendChild(span);
+            });
+          }
+        });
+        
+        // Mål faktiske linjer baseret på getBoundingClientRect
+        const lines = [];
+        let currentLine = [];
+        let lastTop = null;
+        
+        // Gennemgå alle spans og br tags
+        Array.from(element.children).forEach((child, index) => {
+          if (child.tagName === 'BR') {
+            // <br> tag betyder altid ny linje
+            if (currentLine.length > 0) {
+              lines.push(currentLine.join(' '));
+              currentLine = [];
+            }
+            lastTop = null; // Reset så næste element starter ny linje
+          } else {
+            // Det er et span med tekst
+            const rect = child.getBoundingClientRect();
+            
+            if (lastTop === null) {
+              lastTop = rect.top;
+            }
+            
+            if (Math.abs(rect.top - lastTop) > 5) {
+              // Ny linje baseret på position
+              if (currentLine.length > 0) {
+                lines.push(currentLine.join(' '));
+              }
+              currentLine = [child.textContent.trim()];
+              lastTop = rect.top;
+            } else {
+              // Samme linje
+              currentLine.push(child.textContent.trim());
+            }
+          }
+        });
+        
+        // Tilføj sidste linje
+        if (currentLine.length > 0) {
+          lines.push(currentLine.join(' '));
+        }
+        
+        // Genopbyg elementet med line wrappers
+        element.innerHTML = lines.map(line => 
+          `<span class="line-wrapper"><span class="line">${line}</span></span>`
+        ).join('');
+        
+        return element.querySelectorAll('.line');
+      };
+      
+      // Gem original tekst INDEN vi splitter
+      const originalText = contentTitle.value.textContent;
+      
       // Opret en timeline for hele content management sektionen
       // Brug matchMedia for at håndtere pinning forskelligt på desktop vs mobil
       const mm = gsap.matchMedia();
       
-      // Desktop: Pin sektionen
+      // Desktop: Pin sektionen + line stagger animation
       mm.add("(min-width: 769px)", () => {
+        // Gendan original tekst først (vigtig ved HMR/reload)
+        contentTitle.value.classList.remove('lines-ready');
+        contentTitle.value.innerHTML = '';
+        
+        // Tjek om vi er på MacBook Pro 14" størrelse og indsæt linjeskift før "uden"
+        let textToUse = originalText;
+        const isMacBook14 = window.innerWidth >= 1440 && window.innerWidth <= 1700;
+        if (isMacBook14 && textToUse.includes('uden')) {
+          textToUse = textToUse.replace(' uden ', ' <br>uden ');
+        }
+        
+        contentTitle.value.innerHTML = textToUse;
+        
+        // Vent på at DOM er klar før vi splitter
+        requestAnimationFrame(() => {
+          // Split teksten i linjer og få line elementer
+          const lines = splitTextIntoLines(contentTitle.value);
+          
+          if (lines.length === 0) {
+            console.error('❌ [CONTENT-TITLE] No lines found after split');
+            return;
+          }
+          
+          // Vent endnu en frame så line elementer er i DOM
+          requestAnimationFrame(() => {
+            // ALTID sæt initial state først - uanset scroll position
+            // Brug inline styles direkte for at sikre de bliver sat
+            lines.forEach((line, index) => {
+              line.style.opacity = '0';
+              line.style.transform = 'translateY(60px)';
+            });
+            
+            // Marker at linjerne er klar - fjern CSS fallback
+            contentTitle.value.classList.add('lines-ready');
+            
+            // Nu sæt GSAP state (dette vil override inline styles når animationen kører)
+            gsap.set(lines, {
+              y: 60,
+              opacity: 0
+            });
+            
+            // Vent endnu en frame så initial state er helt sat før ScrollTrigger evaluerer
+            requestAnimationFrame(() => {
+              // Vent endnu en frame for at sikre initial state er sat
+              requestAnimationFrame(() => {
+                // Tjek scroll position FØR vi opretter ScrollTrigger
+                const rect = contentSection.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                const triggerPoint = viewportHeight * 0.8;
+                const alreadyPastTrigger = rect.top < triggerPoint && rect.bottom > 0;
+                
+                if (alreadyPastTrigger) {
+                  // Vi er allerede forbi - animer med det samme
+                  const immediateAnimation = gsap.to(lines, {
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.9,
+                    stagger: 0.12,
+                    ease: "power3.out",
+                    clearProps: false, // Vigtig: ikke ryd properties efter animation
+                  });
+                } else {
+                  // Track om animationen er startet for at undgå at refresh() forstyrrer den
+                  let animationStarted = false;
+                  let titleAnimation = null;
+                  
+                  // Opret ScrollTrigger med once: true
+                  const titleTrigger = ScrollTrigger.create({
+                    trigger: contentSection,
+                    start: 'top 30%',
+                    once: true,
+                    markers: false,
+                    invalidateOnRefresh: false,
+                    onEnter: () => {
+                      // Marker at animationen er startet
+                      animationStarted = true;
+                      
+                      // Animér hver linje op med stagger - gem animationen
+                      titleAnimation = gsap.to(lines, {
+                        y: 0,
+                        opacity: 1,
+                        duration: 0.9,
+                        stagger: 0.12,
+                        ease: "power3.out",
+                        clearProps: false, // Vigtig: ikke ryd properties efter animation
+                      });
+                    },
+                    onRefresh: () => {
+                      // Hvis animationen allerede er startet, ignorer refresh
+                      if (animationStarted) {
+                        return;
+                      }
+                      
+                      // Ved refresh, tjek om vi allerede er forbi trigger punktet
+                      const refreshRect = contentSection.getBoundingClientRect();
+                      const refreshViewportHeight = window.innerHeight;
+                      const refreshTriggerPoint = refreshViewportHeight * 0.8;
+                      
+                      if (refreshRect.top < refreshTriggerPoint && refreshRect.bottom > 0) {
+                        // Marker at animationen er startet
+                        animationStarted = true;
+                        // Vi er allerede forbi - animer med det samme
+                        titleAnimation = gsap.to(lines, {
+                          y: 0,
+                          opacity: 1,
+                          duration: 0.9,
+                          stagger: 0.12,
+                          ease: "power3.out",
+                          clearProps: false, // Vigtig: ikke ryd properties efter animation
+                        });
+                        // Kill trigger så den ikke trigger igen
+                        titleTrigger.kill();
+                      }
+                    }
+                  });
+                  
+                  // Refresh ScrollTrigger efter setup - men kun hvis animationen ikke er startet
+                  setTimeout(() => {
+                    if (!animationStarted) {
+                      ScrollTrigger.refresh();
+                    }
+                  }, 100);
+                }
+              });
+            });
+          });
+        });
+        
+        // Pin timeline (uændret)
         const contentTimeline = gsap.timeline({
           ease: "expo.inOut",
           scrollTrigger: {
@@ -545,7 +785,7 @@ onMounted(() => {
         contentTimeline.to({}, { duration: 0.5, ease: "expo.inOut" }, 0.7);
       });
       
-      // Mobil: Ingen pinning
+      // Mobil: Kun pinning, ingen animation
       mm.add("(max-width: 768px)", () => {
         const contentTimeline = gsap.timeline({
           ease: "expo.inOut",
@@ -592,8 +832,8 @@ onMounted(() => {
           // Starter når FlowmateAI sektionen kommer ind i viewport efter content-sektionen
           ScrollTrigger.create({
             trigger: flowmateAISection,
-            start: 'top 80%', // Starter senere - når toppen af sektionen nærmer sig viewport
-            end: 'top -20%',  // Slutter senere - giver mere scroll-tid
+            start: 'top 90%', // Starter senere - når toppen af sektionen nærmer sig viewport
+            end: 'top -1%',  // Slutter senere - giver mere scroll-tid
             scrub: 1,         // Smooth scroll-baseret animation
             onUpdate: (self) => {
               const progress = self.progress;
@@ -682,8 +922,8 @@ onMounted(() => {
           // Opret ScrollTrigger for farvetransition
           ScrollTrigger.create({
             trigger: featureBoxesSection,
-            start: 'top 80%', // Starter senere - når toppen af sektionen nærmer sig viewport
-            end: 'top -20%',  // Slutter senere - giver mere scroll-tid
+            start: 'top 90%', // Starter senere - når toppen af sektionen nærmer sig viewport
+            end: 'top -1%',  // Slutter senere - giver mere scroll-tid
             scrub: 1,         // Smooth scroll-baseret animation
             onUpdate: (self) => {
               const progress = self.progress;
@@ -820,8 +1060,8 @@ onMounted(() => {
           // Opret ScrollTrigger for farvetransition
           ScrollTrigger.create({
             trigger: quoteSection,
-            start: 'top 80%', // Starter senere - når toppen af sektionen nærmer sig viewport
-            end: 'top -20%',  // Slutter senere - giver mere scroll-tid
+            start: 'top 90%', // Starter senere - når toppen af sektionen nærmer sig viewport
+            end: 'top -1%',  // Slutter senere - giver mere scroll-tid
             scrub: 1,         // Smooth scroll-baseret animation
             onUpdate: (self) => {
               const progress = self.progress;
@@ -881,8 +1121,8 @@ onMounted(() => {
           // Opret ScrollTrigger for farvetransition
           ScrollTrigger.create({
             trigger: domainCheckSection,
-            start: 'top 95%', // Starter tidligere - når toppen af sektionen nærmer sig viewport
-            end: 'top -5%',   // Slutter meget tidligere - giver mindre scroll-tid
+            start: 'top 90%', // Starter tidligere - når toppen af sektionen nærmer sig viewport
+            end: 'top -1%',   // Slutter meget tidligere - giver mindre scroll-tid
             scrub: 1,         // Smooth scroll-baseret animation
             onUpdate: (self) => {
               const progress = self.progress;
@@ -935,7 +1175,7 @@ onMounted(() => {
         // Opret ScrollTrigger der animerer én gang når sektionen kommer ind i viewport
         ScrollTrigger.create({
           trigger: domainCheckSection,
-          start: 'top 60%',
+          start: 'top 20%',
           once: true, // Kør kun én gang
           onEnter: () => {
             // Animer linjen fra scaleX(0) til scaleX(1) med ease
@@ -1009,8 +1249,8 @@ onMounted(() => {
           // Opret ScrollTrigger for farvetransition
           ScrollTrigger.create({
             trigger: faqSection,
-            start: 'top 80%', // Starter tidligere - når toppen af sektionen nærmer sig viewport
-            end: 'top -20%',  // Slutter senere - giver mere scroll-tid
+            start: 'top 90%', // Starter tidligere - når toppen af sektionen nærmer sig viewport
+            end: 'top -1%',  // Slutter senere - giver mere scroll-tid
             scrub: 1,         // Smooth scroll-baseret animation
             onUpdate: (self) => {
               const progress = self.progress;
@@ -1125,6 +1365,11 @@ onMounted(() => {
         pinSpacing: true,
       });
     }
+    
+    // Refresh ScrollTrigger efter alle animationer er sat op
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 50);
   }, 100);
 });
 
@@ -1141,26 +1386,91 @@ onUnmounted(() => {
 
 
 if (typeof window !== 'undefined') {
+  // Disable browser scroll restoration
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
   }
   
+  // Funktion til at nulstille scroll position og spiral
+  const forceScrollReset = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
+    // Nulstil spiral position hvis den eksisterer
+    if (window.flowmateCamera) {
+      const camera = window.flowmateCamera;
+      const initialZ = window.flowmateCameraInitialZ || 120;
+      camera.position.z = initialZ;
+      camera.position.y = 175; // Start højt oppe
+      camera.lookAt(0, 0, 0);
+    }
+  };
+  
+  // Nulstil scroll ved page load
   window.addEventListener('load', () => {
-    window.scrollTo(0, 0);
+    forceScrollReset();
+    // Refresh ScrollTrigger når siden er loadet
+    nextTick(() => {
+      ScrollTrigger.refresh();
+      // Nulstil scroll igen efter ScrollTrigger refresh
+      forceScrollReset();
+    });
   });
   
+  // Nulstil scroll ved DOMContentLoaded
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      window.scrollTo(0, 0);
+      forceScrollReset();
     });
   } else {
-    window.scrollTo(0, 0);
+    forceScrollReset();
   }
+  
+  // Nulstil scroll ved beforeunload (før refresh)
+  window.addEventListener('beforeunload', () => {
+    forceScrollReset();
+  });
+  
+  // Refresh ScrollTrigger ved resize
+  window.addEventListener('resize', () => {
+    ScrollTrigger.refresh();
+  });
 }
 
-// Opdel feature boxes header tekst i individuelle bogstaver
-const featureBoxesHeaderString = 'Fuld webløsning – design,hosting og sikkerhed.';
-const featureBoxesHeaderChars = featureBoxesHeaderString.split('');
+// Opdel feature boxes header tekst i ord og derefter i bogstaver
+const featureBoxesHeaderString = computed(() => t('features.title'));
+const featureBoxesHeaderWords = computed(() => {
+  const text = featureBoxesHeaderString.value;
+  const words = [];
+  let currentIndex = 0;
+  
+  // Split på mellemrum
+  const parts = text.split(/\s+/);
+  
+  parts.forEach((part, index) => {
+    if (part.length > 0) {
+      words.push({
+        chars: part.split(''),
+        startIndex: currentIndex,
+        isSpace: false
+      });
+      currentIndex += part.length;
+      
+      // Tilføj mellemrum efter hvert ord (undtagen det sidste)
+      if (index < parts.length - 1) {
+        words.push({
+          chars: [' '],
+          startIndex: currentIndex,
+          isSpace: true
+        });
+        currentIndex += 1;
+      }
+    }
+  });
+  
+  return words;
+});
 
 const allImages = [
   { id: 1, src: spiral1, alt: 'Spiral billede 1' },
@@ -1199,9 +1509,9 @@ const imageList = computed(() => {
     <header class="header-section max-sm:-mt-8">
       <div class="grid-container grid max-sm:grid-cols-6">
         <div class="hero-content max-sm:col-span-6 max-sm:col-start-1">
-          <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">FLOWMATE REALTIME EDITOR</p>
-          <h1 class="text-[2.25rem] sm:text-[3rem] md:text-[4rem] xl:text-[6rem] font-bold leading-[1.1] mb-6 text-white tracking-[-0.02em]" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">Flowmate er din nye bedste ven.</h1>
-          <p class="text-[0.95rem] sm:text-base lg:text-lg xl:text-xl leading-relaxed text-white/90 font-normal max-sm:max-w-[calc(83.333%-0.75rem)]" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">Nåh ja, og realtime frontend editor til headless websites.</p>
+          <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.eyebrow') }}</p>
+          <h1 class="text-[2.25rem] sm:text-[3rem] md:text-[4rem] xl:text-[6rem] font-bold leading-[1.1] mb-6 text-white tracking-[-0.02em]" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.title') }}</h1>
+          <p class="text-[0.95rem] sm:text-base lg:text-lg xl:text-xl leading-relaxed text-white/90 font-normal max-sm:max-w-[calc(83.333%-0.75rem)]" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.subtitle') }}</p>
         </div>
       </div>
       
@@ -1214,7 +1524,7 @@ const imageList = computed(() => {
       class="scroll-indicator fixed bottom-6 sm:bottom-8 md:bottom-10 lg:bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-[1000] group"
       :style="{ opacity: heroOpacity }"
     >
-      <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 m-0 group-hover:text-[rgb(199,179,153)] transition-colors">Scroll Ned</p>
+      <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 m-0 group-hover:text-[rgb(199,179,153)] transition-colors">{{ t('hero.scroll') }}</p>
       <div class="flex flex-col gap-1 items-center">
         <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(199,179,153)] transition-colors" style="animation-delay: 0s"></span>
         <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(199,179,153)] transition-colors" style="animation-delay: 0.15s"></span>
@@ -1231,6 +1541,7 @@ const imageList = computed(() => {
       :style="{ minHeight: `calc(${(imageList.length + 1) * 350}px + 120vh)` }"
     >
       <ImageViewer 
+        ref="imageViewerRef"
         :key="`viewer-${isMobile}`"
         :images="imageList" 
         :start-index="startIndex" 
@@ -1239,8 +1550,10 @@ const imageList = computed(() => {
         :blur-amount="viewerBlur"
         :brightness="viewerBrightness"
         :is-mobile="isMobile"
+        :pre-initialize="true"
         @images-loaded="handleSpiralImagesLoaded"
         @update-blur="handleBlurUpdate"
+        @initialized="handleImageViewerInitialized"
       />
     </div>
 
@@ -1252,9 +1565,9 @@ const imageList = computed(() => {
       <div class="grid-container">
         <div class="content-management-wrapper">
           <div class="content-left">
-            <p class="content-eyebrow text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0"></p>
+           
             <h2 ref="contentTitle" class="content-title">
-              Flowmate gør websites og content management enkelt. Vi klarer design, udvikling, hosting og sikkerhed, så du kan skabe flotte og velfungerende sites uden besvær.
+              {{ t('content.title') }}
             </h2>
           </div>
         </div>
@@ -1270,10 +1583,12 @@ const imageList = computed(() => {
     <!-- Feature Boxes Section -->
     <section class="feature-boxes-section w-full min-h-screen relative bg-transparent pt-0 pb-24 flex items-center lg:pt-0 lg:pb-20 md:pt-0 md:pb-16 sm:pt-0 sm:pb-12 -mt-[40rem] lg:-mt-[30rem] md:-mt-[20rem] sm:-mt-[15rem] max-sm:-mt-16 z-0">
       <div class="grid-container mt-48 lg:mt-80 md:mt-32 sm:mt-24 max-sm:-mt-8">
-        <p class="row-start-1 col-start-1 col-span-4 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6 lg:mb-6 md:mb-6 max-sm:mb-6">Features</p>
-        <h2 ref="featureBoxesHeader" class="row-start-2 col-start-1 col-span-4 lg:row-start-1 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:col-[1/6] text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-0 lg:mb-0 md:mb-10 text-white feature-boxes-header">
-          <span v-for="(char, index) in featureBoxesHeaderChars" :key="index" :data-index="index" class="char-span">
-            {{ char === ' ' ? '\u00A0' : char }}
+        <p class="row-start-1 col-start-1 col-span-4 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 lg:mb-0 md:mb-6 max-sm:mb-6">{{ t('features.eyebrow') }}</p>
+        <h2 ref="featureBoxesHeader" class="row-start-3 col-start-1 col-span-4 lg:row-start-2 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:col-[1/6] text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-0 lg:mb-0 md:mb-10 text-white feature-boxes-header">
+          <span v-for="(word, wordIndex) in featureBoxesHeaderWords" :key="wordIndex" class="word-wrapper" :class="{ 'space-wrapper': word.isSpace }" :data-word-index="wordIndex">
+            <span v-for="(char, charIndex) in word.chars" :key="charIndex" :data-index="word.startIndex + charIndex" class="char-span">
+              {{ char === ' ' ? '\u00A0' : char }}
+            </span>
           </span>
         </h2>
         <FeatureBoxes4 ref="featureBoxes4Component" />
@@ -1328,7 +1643,7 @@ html.preloader-active::-webkit-scrollbar {
 }
 
 html {
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
   scroll-padding-top: 0;
 }
 
@@ -1336,7 +1651,7 @@ html, body {
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
 }
 
 #app {
@@ -1470,7 +1785,7 @@ html, body {
 }
 
 .content-management-section .grid-container {
-  margin-top: -16rem;
+  margin-top: -10rem;
 }
 
 .content-left {
@@ -1487,17 +1802,52 @@ html, body {
   font-weight: 700;
   line-height: 1.1;
  
-  color: #fff;
+  color: #ffffff;
  
   text-align: center;
   grid-row: 2;
-  grid-column: 1 / 13; /* Spænder over kolonner 1-5 */
+  grid-column: 2 / 12; /* Spænder over kolonner 1-5 */
 }
+
+/* MacBook Pro 14" specifik styling */
+@media (min-width: 1440px) and (max-width: 1700px) {
+  .content-title {
+    font-size: 4rem; /* Lidt mindre font-size */
+    grid-column: 1 / 13;
+     /* Bredere - spænder over alle 12 kolonner */
+  }
+}
+
+/* Line wrapper for stagger animation */
+.content-title .line-wrapper {
+  display: block;
+  overflow: hidden;
+}
+
+.content-title .line {
+  display: block;
+  will-change: transform, opacity;
+}
+
+/* Desktop: Start med skjulte linjer - CSS fallback */
+@media (min-width: 769px) {
+  .content-title:not(.lines-ready) .line {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+}
+
 
 /* Char span styling for scroll-baseret animation */
 .char-span {
   display: inline-block;
   transition: color 0.1s ease-out;
+}
+
+/* Forhindre ord i at blive brudt ved linjeskift */
+.feature-boxes-header .word-wrapper {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 /* Forhindre ord i at blive brudt på mobil for feature boxes header */
@@ -1509,6 +1859,19 @@ html, body {
     word-break: normal;
     hyphens: none;
     overflow-wrap: break-word;
+  }
+}
+
+/* Fix ekstra mellemrum på MacBook Pro 14" (ca. 1024px) */
+@media (min-width: 1024px) and (max-width: 1700px) {
+  .feature-boxes-header {
+    font-size: 2.5rem !important;
+  }
+  /* Reducer bredden af alle mellemrum-wrappers for at fikse ekstra mellemrum ved linjeskift */
+  .feature-boxes-header .word-wrapper.space-wrapper {
+    width: 0.25em;
+    overflow: hidden;
+    display: inline-block;
   }
 }
 
@@ -1540,7 +1903,6 @@ html, body {
 @media (max-width: 768px) {
   .content-management-section {
     padding: 60px 0 0;
-    margin-top: -300vh;
   }
 
   .content-management-section .grid-container {

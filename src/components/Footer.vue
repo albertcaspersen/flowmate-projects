@@ -1,6 +1,33 @@
 <template>
-  <footer class="footer-section w-full relative bg-[rgb(115,102,87)] border-t border-white/20">
-    <div class="grid-container">
+  <footer class="footer-section w-full relative bg-[rgb(115,102,87)] border-t border-[rgb(115,102,87)]">
+    <div class="footer-wave-top">
+      <svg class="wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path class="wave-path">
+          <animate attributeName="d" 
+            values="M0,60 Q75,40 150,60 Q225,80 300,60 Q375,40 450,60 Q525,80 600,60 Q675,40 750,60 Q825,80 900,60 Q975,40 1050,60 Q1125,80 1200,60 L1200,120 L0,120 Z;
+                    M0,60 Q75,50 150,60 Q225,70 300,60 Q375,50 450,60 Q525,70 600,60 Q675,50 750,60 Q825,70 900,60 Q975,50 1050,60 Q1125,70 1200,60 L1200,120 L0,120 Z;
+                    M0,60 Q75,45 150,60 Q225,75 300,60 Q375,45 450,60 Q525,75 600,60 Q675,45 750,60 Q825,75 900,60 Q975,45 1050,60 Q1125,75 1200,60 L1200,120 L0,120 Z;
+                    M0,60 Q75,50 150,60 Q225,70 300,60 Q375,50 450,60 Q525,70 600,60 Q675,50 750,60 Q825,70 900,60 Q975,50 1050,60 Q1125,70 1200,60 L1200,120 L0,120 Z;
+                    M0,60 Q75,40 150,60 Q225,80 300,60 Q375,40 450,60 Q525,80 600,60 Q675,40 750,60 Q825,80 900,60 Q975,40 1050,60 Q1125,80 1200,60 L1200,120 L0,120 Z"
+            dur="3s" 
+            repeatCount="indefinite"/>
+        </path>
+      </svg>
+      <svg class="wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path class="wave-path">
+          <animate attributeName="d" 
+            values="M0,60 Q75,40 150,60 Q225,80 300,60 Q375,40 450,60 Q525,80 600,60 Q675,40 750,60 Q825,80 900,60 Q975,40 1050,60 Q1125,80 1200,60 L1200,120 L0,120 Z;
+                    M0,60 Q75,50 150,60 Q225,70 300,60 Q375,50 450,60 Q525,70 600,60 Q675,50 750,60 Q825,70 900,60 Q975,50 1050,60 Q1125,70 1200,60 L1200,120 L0,120 Z;
+                    M0,60 Q75,45 150,60 Q225,75 300,60 Q375,45 450,60 Q525,75 600,60 Q675,45 750,60 Q825,75 900,60 Q975,45 1050,60 Q1125,75 1200,60 L1200,120 L0,120 Z;
+                    M0,60 Q75,50 150,60 Q225,70 300,60 Q375,50 450,60 Q525,70 600,60 Q675,50 750,60 Q825,70 900,60 Q975,50 1050,60 Q1125,70 1200,60 L1200,120 L0,120 Z;
+                    M0,60 Q75,40 150,60 Q225,80 300,60 Q375,40 450,60 Q525,80 600,60 Q675,40 750,60 Q825,80 900,60 Q975,40 1050,60 Q1125,80 1200,60 L1200,120 L0,120 Z"
+            dur="3s" 
+            begin="1.5s"
+            repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </div>
+    <div class="grid-container relative z-10">
       <!-- Logo centered in grid -->
       <div class="footer-logo-container col-start-4 col-span-6 md:col-start-1 md:col-span-12 max-sm:contents flex justify-center items-center py-12 lg:py-10 md:py-8">
         <div class="footer-logo text-white flex items-center gap-4 max-sm:col-start-1 max-sm:col-span-6 max-sm:py-8 max-sm:mt-6">
@@ -31,14 +58,55 @@
             </svg>
         </div>
       </div>
+      
+      <!-- Email and Phone Row 2 (Desktop only) -->
+      <div class="row-start-2 col-start-1 col-span-6 hidden md:flex max-sm:hidden items-center py-0">
+        <a href="mailto:hello@flowmate.dk" class="footer-link text-white text-xl font-medium inline-block">
+          hello@flowmate.dk
+        </a>
+      </div>
+      
+      <!-- Phone Number Row 2 (Desktop only) -->
+      <div class="row-start-2 col-start-10 col-span-3 hidden md:flex max-sm:hidden items-center justify-end py-0">
+        <a href="tel:+4571747426" class="footer-link text-white text-xl font-medium inline-block">
+          +45 71 7474 26
+        </a>
+      </div>
 
-      <!-- Contact Information Section -->
-      <div class="footer-content col-start-1 col-span-12 max-sm:col-start-1 max-sm:col-span-6 pb-8 border-b border-white/20">
-        <div class="grid grid-cols-12 max-sm:grid-cols-6 gap-8 lg:gap-6 md:gap-4">
+      <!-- Social Icons Row 3 (Desktop only) -->
+      <div class="row-start-3 col-start-1 col-span-6 hidden md:flex max-sm:hidden items-center py-0">
+        <div class="footer-social flex gap-6">
+          <!-- Instagram Icon -->
+          <a href="#" class="text-white hover:text-white/80 transition-all duration-300 flex items-center hover:scale-110" aria-label="Instagram">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2" fill="none"/>
+              <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" fill="none"/>
+              <circle cx="17" cy="7" r="1" fill="currentColor"/>
+            </svg>
+          </a>
+          <!-- Second Icon -->
+          <a href="#" class="text-white hover:text-white/80 transition-all duration-300 flex items-center hover:scale-110" aria-label="Social Media">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="8" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <circle cx="8" cy="12" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <circle cx="16" cy="12" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <circle cx="12" cy="16" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Separator Line (Desktop only) -->
+      <div class="row-start-4 col-start-1 col-span-12 hidden md:block max-sm:hidden pb-8 border-b border-white/20"></div>
+
+      <!-- Contact Information Section (Mobile only) -->
+      <div class="footer-content col-start-1 col-span-12 max-sm:col-start-1 max-sm:col-span-6 pb-8 border-b border-white/20 md:hidden">
+        <div>
           <!-- Email and Social -->
-          <div class="col-span-6 md:col-span-12 max-sm:col-span-6">
+          <div>
             <div class="space-y-6 md:space-y-4">
-              <a href="mailto:hello@flowmate.dk" class="footer-link text-white text-lg md:text-base font-medium hover:text-white/80 transition-all duration-300 inline-block hover:translate-x-1">
+              <a href="mailto:hello@flowmate.dk" class="footer-link text-white text-lg md:text-base font-medium inline-block md:hidden">
                 hello@flowmate.dk
               </a>
               <div class="footer-social flex gap-6 md:gap-4">
@@ -63,46 +131,165 @@
               </div>
             </div>
           </div>
-
-          <!-- Phone Number -->
-          <div class="col-span-6 md:col-span-12 max-sm:col-span-6 md:text-left text-right">
-            <a href="tel:+4571747426" class="footer-link text-white text-lg md:text-base font-medium hover:text-white/80 transition-all duration-300 inline-block hover:translate-x-[-4px] md:hover:translate-x-1">
+          
+          <!-- Phone Number (Mobile only) -->
+          <div class="md:hidden text-left">
+            <a href="tel:+4571747426" class="footer-link text-white text-lg font-medium inline-block">
               +45 71 7474 26
             </a>
           </div>
         </div>
       </div>
 
-      <!-- Bottom Row: Copyright and Language -->
-      <div class="footer-bottom col-start-1 col-span-12 max-sm:col-start-1 max-sm:col-span-6 py-8 flex justify-between items-center md:flex-col md:items-start md:gap-6 md:py-6">
+      <!-- Bottom Row: Copyright -->
+      <div class="footer-bottom row-start-5 col-start-1 col-span-12 max-sm:col-start-1 max-sm:col-span-6 py-8 text-center">
         <p class="footer-copyright text-white text-sm md:text-xs">
-          © 2025 Flowmate. All rights reserved.
+          {{ t('footer.copyright') }}
         </p>
-        <button class="footer-language bg-[rgb(115,102,87)] hover:bg-[rgb(199,179,153)] text-white text-sm md:text-xs font-medium focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300 border-none cursor-pointer rounded-lg px-6 py-2.5 md:px-5 md:py-2">
-          English
-        </button>
       </div>
     </div>
   </footer>
 </template>
 
 <script setup>
-// Footer component - no reactive logic needed
+import { injectI18n } from '../composables/useI18n';
+
+const { t } = injectI18n();
 </script>
 
 <style scoped>
 .footer-section {
   position: relative;
+  overflow: visible;
 }
 
-.footer-section::before {
-  content: '';
+.footer-wave-top {
   position: absolute;
-  top: 0;
+  top: -60px;
   left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  width: 200%;
+  height: 60px;
+  display: flex;
+  z-index: 10;
+  pointer-events: none;
+  overflow: hidden;
+  animation: wave-scroll 10s linear infinite;
+}
+
+.wave-svg {
+  width: 50%;
+  height: 100%;
+  flex-shrink: 0;
+  display: block;
+}
+
+.wave-path {
+  fill: rgb(115, 102, 87);
+}
+
+@keyframes wave-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes wave-morph {
+  0%, 100% {
+    clip-path: polygon(
+      0% 100%,
+      4.17% 66.67%,
+      8.33% 50%,
+      12.5% 66.67%,
+      16.67% 50%,
+      20.83% 66.67%,
+      25% 50%,
+      29.17% 66.67%,
+      33.33% 50%,
+      37.5% 66.67%,
+      41.67% 50%,
+      45.83% 66.67%,
+      50% 50%,
+      54.17% 66.67%,
+      58.33% 50%,
+      62.5% 66.67%,
+      66.67% 50%,
+      70.83% 66.67%,
+      75% 50%,
+      79.17% 66.67%,
+      83.33% 50%,
+      87.5% 66.67%,
+      91.67% 50%,
+      95.83% 66.67%,
+      100% 50%,
+      100% 100%,
+      0% 100%
+    );
+  }
+  33% {
+    clip-path: polygon(
+      0% 100%,
+      4.17% 58.33%,
+      8.33% 50%,
+      12.5% 58.33%,
+      16.67% 50%,
+      20.83% 58.33%,
+      25% 50%,
+      29.17% 58.33%,
+      33.33% 50%,
+      37.5% 58.33%,
+      41.67% 50%,
+      45.83% 58.33%,
+      50% 50%,
+      54.17% 58.33%,
+      58.33% 50%,
+      62.5% 58.33%,
+      66.67% 50%,
+      70.83% 58.33%,
+      75% 50%,
+      79.17% 58.33%,
+      83.33% 50%,
+      87.5% 58.33%,
+      91.67% 50%,
+      95.83% 58.33%,
+      100% 50%,
+      100% 100%,
+      0% 100%
+    );
+  }
+  66% {
+    clip-path: polygon(
+      0% 100%,
+      4.17% 75%,
+      8.33% 50%,
+      12.5% 75%,
+      16.67% 50%,
+      20.83% 75%,
+      25% 50%,
+      29.17% 75%,
+      33.33% 50%,
+      37.5% 75%,
+      41.67% 50%,
+      45.83% 75%,
+      50% 50%,
+      54.17% 75%,
+      58.33% 50%,
+      62.5% 75%,
+      66.67% 50%,
+      70.83% 75%,
+      75% 50%,
+      79.17% 75%,
+      83.33% 50%,
+      87.5% 75%,
+      91.67% 50%,
+      95.83% 75%,
+      100% 50%,
+      100% 100%,
+      0% 100%
+    );
+  }
 }
 
 .footer-link {
@@ -142,33 +329,6 @@
 
 .footer-social a:hover::after {
   opacity: 1;
-}
-
-.footer-language {
-  position: relative;
-  overflow: hidden;
-}
-
-.footer-language::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s ease, height 0.6s ease;
-}
-
-.footer-language:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.footer-language:active {
-  transform: scale(0.98);
 }
 
 </style>
