@@ -9,6 +9,9 @@ export default {
       fontFamily: {
         sans: ['Figtree', 'sans-serif'],
       },
+      screens: {
+        'macbook14': '1512px',
+      },
     },
   },
   plugins: [],

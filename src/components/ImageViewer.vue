@@ -4,6 +4,7 @@
     <div 
       ref="threeContainer" 
       class="three-container max-sm:hidden"
+      :class="{ 'pre-initializing': isPreInitializing }"
       :style="{ filter: `blur(${props.blurAmount}px) brightness(${props.brightness})` }"
     ></div>
   </div>
@@ -24,10 +25,11 @@ const props = defineProps({
   blurAmount: { type: Number, default: 0 },
   brightness: { type: Number, default: 1 },
   isMobile: { type: Boolean, default: false },
+  preInitialize: { type: Boolean, default: false },
 });
 
 // Emits
-const emit = defineEmits(['images-loaded', 'update-blur']);
+const emit = defineEmits(['images-loaded', 'update-blur', 'initialized']);
 
 // Refs
 const viewerOverlay = ref(null);
@@ -55,17 +57,147 @@ let continuousWaveAnimationId = null; // Kontinuerlig bølge-animation når man 
 // Bølge-højde kontrol (juster denne værdi for at ændre bølgehøjden)
 const waveAmplitude = ref(3); // Standard værdi: 8. Øg for højere bølger, sænk for lavere bølger
 
-// Eksponér kameraet og video globalt så App.vue kan animere det
+// Pre-initialization state
+const isPreInitializing = ref(false);
+let isInitialized = false;
+let preWarmFrameCount = 0;
+const PRE_WARM_FRAMES = 30; // Number of frames to pre-render for GPU warmup (increased for better warmup)
+let scrollTriggerSetup = false; // Track if ScrollTrigger is set up
+let scrollTimeline = null; // Reference to the GSAP scroll timeline
+
+// Eksponér kameraet, spiralGroup og video globalt så App.vue kan animere det
 if (typeof window !== 'undefined') {
   window.flowmateCamera = null;
   window.flowmateCameraInitialZ = null;
   window.flowmateVideo = null;
+  window.flowmateSpiralGroup = null;
+}
+
+//
+// -------- GPU PRE-WARMING --------
+//
+function preWarmGPU() {
+  if (!renderer || !scene || !camera || isPreInitializing.value) {
+    return;
+  }
+  
+  // Only pre-warm if we have textures loaded
+  if (loadedTexturesCount < totalTexturesToLoad) {
+    return;
+  }
+  
+  // Don't pre-warm if ScrollTrigger isn't set up yet or spiral isn't ready
+  const viewerWrapper = document.querySelector('.viewer-wrapper');
+  if (!viewerWrapper || !spiralGroup || !scrollTriggerSetup) {
+    // Retry after a short delay if ScrollTrigger isn't ready
+    setTimeout(() => {
+      if (scrollTriggerSetup && spiralGroup) {
+        preWarmGPU();
+      }
+    }, 200);
+    return;
+  }
+  
+  isPreInitializing.value = true;
+  preWarmFrameCount = 0;
+  
+  // Calculate scroll animation parameters (same as in setupScrollAnimation)
+  const totalElements = props.images.length + (props.videoSrc ? 1 : 0);
+  const initialCameraZ = props.isMobile ? 75 : 120;
+  const finalCameraY = -(totalElements - 1) * 40;
+  const finalCameraZ = props.isMobile ? 65 : 98;
+  const finalRotationY = Math.PI * 1.505;
+  const initialRotationY = -Math.PI * 1.4;
+  
+  // Store initial positions
+  const initialCameraY = camera.position.y;
+  const initialZ = camera.position.z;
+  
+  const preWarmLoop = () => {
+    if (preWarmFrameCount >= PRE_WARM_FRAMES) {
+      // Reset timeline to start position
+      if (scrollTimeline) {
+        scrollTimeline.progress(0);
+      }
+      
+      // Reset to initial positions after warmup
+      camera.position.y = initialCameraY;
+      camera.position.z = initialZ;
+      if (spiralGroup) {
+        spiralGroup.rotation.y = initialRotationY;
+      }
+      camera.lookAt(0, camera.position.y, 0);
+      
+      isPreInitializing.value = false;
+      
+      // Refresh ScrollTrigger after pre-warming to pre-calculate positions
+      // This ensures all scroll positions are calculated before user interaction
+      if (typeof ScrollTrigger !== 'undefined') {
+        ScrollTrigger.refresh();
+        // Force a second refresh after a short delay to ensure everything is calculated
+        setTimeout(() => {
+          ScrollTrigger.refresh();
+        }, 50);
+      }
+      return;
+    }
+    
+    // Simulate scroll progress (0 to 1)
+    const progress = preWarmFrameCount / PRE_WARM_FRAMES;
+    
+    // Update GSAP timeline progress to warm up ScrollTrigger calculations
+    // This ensures ScrollTrigger has calculated all positions
+    if (scrollTimeline) {
+      scrollTimeline.progress(progress);
+    }
+    
+    // Also manually update camera/spiral to warm up GPU rendering
+    // This matches the GSAP timeline animation
+    if (progress <= 0.65) {
+      // First 65%: rotation and camera Y movement
+      const progress65 = progress / 0.65;
+      const easedProgress = 1 - Math.pow(1 - progress65, 1); // power1.out
+      
+      if (spiralGroup) {
+        spiralGroup.rotation.y = initialRotationY + (finalRotationY - initialRotationY) * easedProgress;
+      }
+      camera.position.y = initialCameraY + (finalCameraY - initialCameraY) * easedProgress;
+    } else {
+      // Last 35%: zoom in
+      const progress35 = (progress - 0.65) / 0.35;
+      const easedProgress = progress35 < 0.5 
+        ? 2 * progress35 * progress35 
+        : 1 - Math.pow(-2 * progress35 + 2, 2) / 2; // power2.inOut
+      
+      camera.position.z = initialZ + (finalCameraZ - initialZ) * easedProgress;
+    }
+    
+    // Update camera lookAt
+    camera.lookAt(new THREE.Vector3(0, camera.position.y, 0));
+    
+    // Render frame
+    if (renderer && scene && camera) {
+      renderer.render(scene, camera);
+    }
+    
+    preWarmFrameCount++;
+    
+    // Use requestAnimationFrame for smooth pre-warming
+    requestAnimationFrame(preWarmLoop);
+  };
+  
+  requestAnimationFrame(preWarmLoop);
 }
 
 //
 // -------- THREE.JS SETUP --------
 //
 function initThree() {
+  if (isInitialized) {
+    return; // Already initialized
+  }
+  
+  isInitialized = true;
   // 1. Scene
   scene = new THREE.Scene();
 
@@ -110,11 +242,15 @@ function initThree() {
   // Tilføj billeder til scenen
   createImageSpiral();
 
-  // Start animationsloop
+  // Start animationsloop (will skip rendering during pre-initialization warmup)
   animate();
 
   // Opsæt scroll-animation
   setupScrollAnimation();
+  scrollTriggerSetup = true;
+  
+  // Emit initialized event (three.js is set up, textures may still be loading)
+  emit('initialized');
 
   // SIMPEL ZOOM-OUT ANIMATION - trigger fra content management sektion
   setTimeout(() => {
@@ -464,6 +600,11 @@ function createImageSpiral() {
   spiralGroup = new THREE.Group(); // <-- NYT: Opret gruppen
   scene.add(spiralGroup);          // <-- NYT: Tilføj gruppen til scenen
   
+  // Eksponér spiralGroup globalt
+  if (typeof window !== 'undefined') {
+    window.flowmateSpiralGroup = spiralGroup;
+  }
+  
   // Sæt spiralens start-rotation (juster dette tal for at dreje spiralen)
   spiralGroup.rotation.y = -Math.PI * 1.4; // 0.25 = 45 grader, 0.5 = 90 grader, osv.
 
@@ -481,6 +622,18 @@ function createImageSpiral() {
     loadedTexturesCount++;
     if (loadedTexturesCount === totalTexturesToLoad) {
       emit('images-loaded');
+      
+      // If pre-initializing, trigger GPU warmup after textures are loaded
+      if (props.preInitialize && renderer && scene && camera) {
+        // Small delay to ensure all textures are fully processed and ScrollTrigger is set up
+        setTimeout(() => {
+          // Ensure ScrollTrigger is refreshed before warmup
+          if (typeof ScrollTrigger !== 'undefined') {
+            ScrollTrigger.refresh();
+          }
+          preWarmGPU();
+        }, 200);
+      }
     }
   };
 
@@ -659,6 +812,9 @@ function setupScrollAnimation() {
       }
     }
   });
+  
+  // Store reference to timeline for warmup
+  scrollTimeline = tl;
 
   // Føj rotation af hele spiralen til tidslinjen (65% af animationen)
   tl.to(spiralGroup.rotation, {
@@ -699,6 +855,12 @@ function setupScrollAnimation() {
 // -------- ANIMATIONSLOOP OG RESIZE HANDLER --------
 //
 function animate(currentTime = 0) {
+  // Don't animate during pre-initialization warmup
+  if (isPreInitializing.value) {
+    animationFrameId = requestAnimationFrame(animate);
+    return;
+  }
+  
   animationFrameId = requestAnimationFrame(animate);
   
   // Throttle FPS på mobil for bedre performance
@@ -738,7 +900,32 @@ onMounted(() => {
   // Initialiser Three.js (kun desktop)
   if (threeContainer.value && !props.isMobile) {
       initThree();
+      
+      // Nulstil spiral position ved page load for at sikre den starter fra toppen
+      // Vent lidt så ScrollTrigger er sat op
+      setTimeout(() => {
+        if (camera && spiralGroup) {
+          const initialZ = props.isMobile ? 75 : 120;
+          camera.position.z = initialZ;
+          camera.position.y = 175;
+          camera.lookAt(0, 0, 0);
+          
+          // Nulstil spiral rotation
+          if (spiralGroup) {
+            spiralGroup.rotation.y = -Math.PI * 1.4;
+          }
+          
+          // Opdater ScrollTrigger så den synkroniseres med scroll position
+          ScrollTrigger.refresh();
+        }
+      }, 100);
   }
+});
+
+// Expose methods for parent component
+defineExpose({
+  preWarmGPU,
+  initThree,
 });
 
 onUnmounted(() => {
@@ -824,6 +1011,12 @@ onUnmounted(() => {
 .three-container {
   width: 100%;
   height: 90%;
- 
+}
+
+.three-container.pre-initializing {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
 }
 </style>

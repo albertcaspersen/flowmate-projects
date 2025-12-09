@@ -2,12 +2,12 @@
   <section class="domain-check-section w-full min-h-screen relative bg-transparent py-6 flex items-center lg:py-5 md:py-4 sm:py-3">
     <div class="grid-container">
       <!-- Eyebrow -->
-      <p ref="eyebrow" class="domain-check-eyebrow row-[1] col-start-1 col-span-5 lg:col-start-1 lg:col-span-6 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-[1] text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6 max-sm:mb-6">
-        DOMAIN CHECKER
+      <p ref="eyebrow" class="domain-check-eyebrow row-[1] col-start-1 col-span-5 lg:col-start-1 lg:col-span-6 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-[1] text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 lg:mb-0 max-sm:mb-6">
+        {{ t('domain.eyebrow') }}
       </p>
       
       <!-- Header -->
-      <h2 ref="domainCheckHeader" class="domain-check-header row-[1] col-start-1 col-span-5 lg:col-start-1 lg:col-span-6 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-[2] text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-8 max-sm:mb-0 text-white relative z-10">
+      <h2 ref="domainCheckHeader" class="domain-check-header row-[2] col-start-1 col-span-5 lg:col-start-1 lg:col-span-6 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-[2] text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-8 max-sm:mb-0 text-white relative z-10">
           <span v-for="(char, index) in domainCheckHeaderCharsPart1" :key="`part1-${index}`" :data-index="index" class="char-span">
             {{ char === ' ' ? '\u00A0' : char }}
           </span>
@@ -18,7 +18,7 @@
         </h2>
 
       <!-- Large Domain Input Field -->
-      <div class="domain-input-container row-[2] col-[1/13] max-sm:col-[1/7] max-sm:row-[3] pb-4">
+      <div ref="domainCheckForm" class="domain-input-container row-[3] col-[1/13] max-sm:col-[1/7] max-sm:row-[3] pb-4">
         <!-- Animated Line -->
         <div ref="animatedLine" class="animated-line h-0.5 bg-white"></div>
         <div class="domain-input-wrapper relative flex items-end gap-4">
@@ -27,7 +27,7 @@
               ref="domainInput"
               type="text"
               v-model="domainName"
-              placeholder="Enter domain name"
+              :placeholder="t('domain.placeholder')"
               @keyup.enter="checkDomain"
               @focus="isFocused = true"
               @blur="isFocused = false"
@@ -54,7 +54,7 @@
       </div>
 
       <!-- Domain Note -->
-      <div class="domain-note-container row-[3] col-[1/4] max-sm:col-[1/7] max-sm:row-[4]">
+      <div class="domain-note-container row-[4] col-[1/4] max-sm:col-[1/7] max-sm:row-[4]">
         <p ref="domainNote" class="domain-note text-sm text-gray-400">
           Only .dk domains are currently supported.
         </p>
@@ -65,7 +65,7 @@
         <div v-if="isChecking" class="domain-check-result">
           <div class="flex items-center gap-3">
             <div class="loading-spinner"></div>
-            <p class="text-white text-lg">Tjekker domæne...</p>
+            <p class="text-white text-lg">{{ t('domain.checking') }}</p>
           </div>
         </div>
         <div v-else-if="domainResult" class="domain-check-result">
@@ -74,18 +74,18 @@
               <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              <h3 class="text-white text-xl font-semibold">Domænet er ledigt!</h3>
+              <h3 class="text-white text-xl font-semibold">{{ t('domain.available') }}</h3>
             </div>
-            <p class="text-gray-300 text-sm ml-8">{{ domainResult.domain }} er tilgængeligt</p>
+            <p class="text-gray-300 text-sm ml-8">{{ domainResult.domain }} {{ t('domain.availableText') }}</p>
           </div>
           <div v-else class="result-taken">
             <div class="flex items-center gap-2 mb-2">
               <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              <h3 class="text-white text-xl font-semibold">Domænet er taget</h3>
+              <h3 class="text-white text-xl font-semibold">{{ t('domain.taken') }}</h3>
             </div>
-            <p class="text-gray-300 text-sm ml-8">{{ domainResult.domain }} er allerede registreret</p>
+            <p class="text-gray-300 text-sm ml-8">{{ domainResult.domain }} {{ t('domain.takenText') }}</p>
           </div>
         </div>
         <div v-if="domainError" class="domain-check-result">
@@ -103,6 +103,9 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { injectI18n } from '../composables/useI18n';
+
+const { t } = injectI18n();
 
 const domainName = ref('');
 const isFocused = ref(false);
@@ -118,19 +121,18 @@ const showCursor = computed(() => {
 // Expose domain check header ref så parent kan tilgå den
 const domainCheckHeader = ref(null);
 const eyebrow = ref(null);
-const checkTitle = ref(null);
+const checkTitle = eyebrow; // Use eyebrow as checkTitle
 const domainCheckForm = ref(null);
 const domainInput = ref(null);
 const searchButton = ref(null);
 const domainNote = ref(null);
 const animatedLine = ref(null);
 
-// Opdel teksten i individuelle bogstaver
-// Opdel i to dele med linjeskift efter "Lad os komme i gang -"
-const domainCheckHeaderStringPart1 = 'Lad os komme i gang -';
-const domainCheckHeaderStringPart2 = 'hvad er dit domæne?';
-const domainCheckHeaderCharsPart1 = domainCheckHeaderStringPart1.split('');
-const domainCheckHeaderCharsPart2 = domainCheckHeaderStringPart2.split('');
+// Opdel teksten i individuelle bogstaver - bruger oversættelse
+const domainCheckHeaderStringPart1 = computed(() => t('domain.title.part1'));
+const domainCheckHeaderStringPart2 = computed(() => t('domain.title.part2'));
+const domainCheckHeaderCharsPart1 = computed(() => domainCheckHeaderStringPart1.value.split(''));
+const domainCheckHeaderCharsPart2 = computed(() => domainCheckHeaderStringPart2.value.split(''));
 
 // Expose ref til parent
 defineExpose({
@@ -159,14 +161,14 @@ const checkDomain = async () => {
   
   // Validate domain name
   if (!domain || domain.length === 0) {
-    domainError.value = 'Indtast venligst et domænenavn';
+    domainError.value = t('domain.error');
     return;
   }
   
   // Validate domain format (only letters, numbers, and hyphens)
   const domainRegex = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/;
   if (!domainRegex.test(domain)) {
-    domainError.value = 'Ugyldigt domænenavn. Brug kun bogstaver, tal og bindestreger';
+    domainError.value = t('domain.errorInvalid');
     return;
   }
   
@@ -226,7 +228,7 @@ const checkDomain = async () => {
     }
   } catch (error) {
     console.error('Error checking domain:', error);
-    domainError.value = 'Der opstod en fejl ved tjekket. Prøv igen senere.';
+    domainError.value = t('domain.errorCheck');
   } finally {
     isChecking.value = false;
   }
@@ -255,7 +257,7 @@ const checkViaAlternativeMethod = async (fullDomain) => {
       };
     } else {
       // If API fails, show error
-      domainError.value = 'Kunne ikke tjekke domænet. Prøv igen eller kontakt os direkte.';
+      domainError.value = t('domain.errorAlternative');
     }
   } catch (error) {
     console.error('Alternative check failed:', error);
@@ -279,7 +281,7 @@ const checkViaAlternativeMethod = async (fullDomain) => {
 
 
 .domain-input-container {
-  grid-row: 2;
+  grid-row: 3;
   position: relative;
   z-index: 1;
   margin-top: 2rem;
@@ -301,7 +303,7 @@ const checkViaAlternativeMethod = async (fullDomain) => {
 }
 
 .domain-note-container {
-  grid-row: 3;
+  grid-row: 4;
   position: relative;
   z-index: 1;
   margin-top: 1rem;
@@ -421,10 +423,9 @@ const checkViaAlternativeMethod = async (fullDomain) => {
 }
 
 .domain-check-right {
-  display: flex;
   flex-direction: column;
-  grid-row: 1 !important;
-  grid-column: 7 / 12;/* Spænder fra kolonne 7 til 11 (12 er eksklusiv) */
+  grid-row: 2;
+  grid-column: 9 / 13;/* Spænder fra kolonne 7 til 11 (12 er eksklusiv) */
   position: relative;
   z-index: 1;
 }
@@ -519,6 +520,13 @@ const checkViaAlternativeMethod = async (fullDomain) => {
 .result-taken {
   background-color: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Reducer font-størrelse på domain check overskrift til MacBook Pro 14" */
+@media (min-width: 1024px) and (max-width: 1700px) {
+  .domain-check-header {
+    font-size: 2.5rem;
+  }
 }
 </style>
 

@@ -1,9 +1,9 @@
 <template>
-  <nav class="fixed top-0 left-0 right-0 z-[1000] py-8 max-sm:py-3 max-sm:mt-4">
-    <div class="grid grid-cols-12 max-sm:grid-cols-6 gap-6 max-sm:gap-3 w-[calc(100%-10rem)] max-sm:w-[calc(100%-3rem)] mx-[5rem] max-sm:mx-[1.5rem] items-center">
+  <nav class="fixed top-0 left-0 right-0 z-[1000] py-8 max-[1024px]:py-6 max-[768px]:py-3 max-[768px]:mt-4">
+    <div class="grid grid-cols-12 max-[768px]:grid-cols-6 gap-6 max-[1024px]:gap-5 max-[768px]:gap-4 max-[480px]:gap-3 w-[calc(100%-10rem)] max-[1024px]:w-[calc(100%-8rem)] max-[768px]:w-[calc(100%-5rem)] max-[480px]:w-[calc(100%-3rem)] mx-[5rem] max-[1024px]:mx-[4rem] max-[768px]:mx-[2.5rem] max-[480px]:mx-[1.5rem] items-center">
       <!-- Logo til venstre -->
-      <div class="col-span-6 max-sm:col-span-2 flex items-center">
-        <div class="h-12 max-sm:h-7 text-white flex items-center justify-start">
+      <div class="col-span-6 max-[768px]:col-span-2 macbook14:col-span-5 flex items-center">
+        <div class="h-[clamp(2.5rem,2.75rem,3rem)] max-[768px]:h-7 text-white flex items-center justify-start">
           <svg width="240" height="44" viewBox="0 0 240 44" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-full w-auto">
             <defs>
               <clipPath id="clip0_2070_751">
@@ -33,16 +33,32 @@
       </div>
 
       <!-- Knapper til højre - hver med sin grid position -->
-      <button class="col-span-1 col-start-11 max-sm:col-span-1 max-sm:col-start-5 bg-[rgb(115,102,87)] text-white border-none rounded-lg max-sm:rounded-md py-[0.625rem] max-sm:py-[0.375rem] px-[0.625rem] max-sm:px-0 text-[0.95rem] max-sm:text-[0.7rem] font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[rgb(199,179,153)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(199,179,153,0.5)]">
-        <span class="max-sm:hidden">Kom i gang</span>
-        <span class="hidden max-sm:inline">Prøv nu</span>
+      <button class="nav-button-macbook14 col-span-1 col-start-11 max-[768px]:col-span-1 max-[768px]:col-start-5 macbook14:col-start-11 macbook14:col-span-1 bg-[rgb(115,102,87)] text-white border-none rounded-lg max-[768px]:rounded-md py-[0.625rem] max-[768px]:py-[0.375rem] macbook14:py-[0.5rem] px-[0.625rem] max-[768px]:px-0 macbook14:px-[0.5rem] text-[0.95rem] max-[768px]:text-[0.7rem] font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[rgb(199,179,153)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(199,179,153,0.5)]">
+        <span class="max-[768px]:hidden">{{ t('nav.getStarted') }}</span>
+        <span class="hidden max-[768px]:inline">{{ t('nav.tryNow') }}</span>
       </button>
-      <button class="col-span-1 col-start-12 max-sm:col-span-1 max-sm:col-start-6 bg-[rgb(115,102,87)] text-white rounded-lg max-sm:rounded-md py-[0.625rem] max-sm:py-[0.375rem] px-[0.625rem] max-sm:px-0 text-[0.95rem] max-sm:text-[0.7rem] max-sm:text-center font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[rgb(199,179,153)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(199,179,153,0.5)]">English</button>
+      <button @click="toggleLanguage" class="nav-button-macbook14 col-span-1 col-start-12 max-[768px]:col-span-1 max-[768px]:col-start-6 macbook14:col-start-12 macbook14:col-span-1 bg-[rgb(115,102,87)] text-white rounded-lg max-[768px]:rounded-md py-[0.625rem] max-[768px]:py-[0.375rem] macbook14:py-[0.5rem] px-[0.625rem] max-[768px]:px-0 macbook14:px-[0.5rem] text-[0.95rem] max-[768px]:text-[0.7rem] max-[768px]:text-center font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[rgb(199,179,153)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(199,179,153,0.5)]">{{ t('nav.english') }}</button>
     </div>
   </nav>
 </template>
 
 <script setup>
-// Komponenten kan modtage props hvis nødvendigt
+import { injectI18n } from '../composables/useI18n';
+
+const { t, locale, setLocale } = injectI18n();
+
+const toggleLanguage = () => {
+  const newLocale = locale.value === 'da' ? 'en' : 'da';
+  setLocale(newLocale);
+};
 </script>
+
+<style scoped>
+/* Custom styling for MacBook Pro 14" only (1024px - 1700px range) */
+@media (min-width: 1024px) and (max-width: 1700px) {
+  .nav-button-macbook14 {
+    font-size: 0.8rem; /* 12px */
+  }
+}
+</style>
 
