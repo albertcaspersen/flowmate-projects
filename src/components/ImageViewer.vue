@@ -65,6 +65,21 @@ const PRE_WARM_FRAMES = 30; // Number of frames to pre-render for GPU warmup (in
 let scrollTriggerSetup = false; // Track if ScrollTrigger is set up
 let scrollTimeline = null; // Reference to the GSAP scroll timeline
 
+// Desktop zoom targets
+const DESKTOP_DEFAULT_ZOOM_Z = 98;
+const DESKTOP_27_INCH_ZOOM_Z = 96.5; // Justér denne for 27" skærme
+
+function is27InchDisplay() {
+  if (typeof window === 'undefined') return false;
+  const width = window.innerWidth || 0;
+  return width >= 2500 && width <= 2700; // Ca. 27" opløsning (f.eks. 2560px bred)
+}
+
+function getDesktopZoomTargetZ() {
+  if (props.isMobile) return 65;
+  return is27InchDisplay() ? DESKTOP_27_INCH_ZOOM_Z : DESKTOP_DEFAULT_ZOOM_Z;
+}
+
 // Eksponér kameraet, spiralGroup og video globalt så App.vue kan animere det
 if (typeof window !== 'undefined') {
   window.flowmateCamera = null;
@@ -105,7 +120,7 @@ function preWarmGPU() {
   const totalElements = props.images.length + (props.videoSrc ? 1 : 0);
   const initialCameraZ = props.isMobile ? 75 : 120;
   const finalCameraY = -(totalElements - 1) * 40;
-  const finalCameraZ = props.isMobile ? 65 : 98;
+  const finalCameraZ = props.isMobile ? 65 : getDesktopZoomTargetZ();
   const finalRotationY = Math.PI * 1.505;
   const initialRotationY = -Math.PI * 1.4;
   
@@ -834,7 +849,7 @@ function setupScrollAnimation() {
   // På mobil zoomer vi kun lidt da der ingen video er
   if (!props.isMobile) {
     tl.to(camera.position, {
-      z: 98, // Zoom ind fra 120 til 95 (kun desktop)
+      z: getDesktopZoomTargetZ(), // Desktop zoom (kan tweakes for 27")
       ease: "power2.inOut", // Blød start og blød afslutning på zoom
       duration: 0.35, // 35% af tidslinjen
       onComplete: () => { hasZoomedInOnVideo = true; } // Marker at vi har zoomet ind på videoen

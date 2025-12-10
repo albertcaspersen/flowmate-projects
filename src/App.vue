@@ -45,6 +45,10 @@ const viewerBrightness = ref(1);
 
 const isMobile = ref(false);
 
+// Header section top position - responsive to viewport height
+const headerTopPosition = ref('38rem');
+const initialViewportHeight = ref(0);
+
 // Loading state
 const isLoading = ref(true);
 const showPreloader = ref(true);
@@ -66,6 +70,27 @@ const stackContainerRef = ref(null);
 
 const updateMobileStatus = () => {
   isMobile.value = window.innerWidth <= 768;
+};
+
+// Update header top position based on viewport height changes
+// This ensures hero texts follow viewport when resizing from both top and bottom
+const updateHeaderTopPosition = () => {
+  // Store initial viewport height on first call
+  if (initialViewportHeight.value === 0) {
+    initialViewportHeight.value = window.innerHeight;
+  }
+  
+  // Calculate the ratio of current viewport height to initial height
+  const heightRatio = window.innerHeight / initialViewportHeight.value;
+  
+  // Adjust the top position proportionally (38rem base value)
+  // Convert rem to pixels (assuming 16px base) and scale by ratio
+  const baseRem = 38;
+  const basePx = baseRem * 16;
+  const adjustedPx = basePx * heightRatio;
+  const adjustedRem = adjustedPx / 16;
+  
+  headerTopPosition.value = `${adjustedRem}rem`;
 };
 
 // Handle når spiral billeder er loadet
@@ -253,10 +278,10 @@ void main() {
     float v = n1 * 0.55 + n2 * 0.45;
     v = pow(v, 0.7);
 
-vec3 a = vec3(0.98, 0.97, 0.94);  // blød hvid highlight – let varm, linen-agtig
-vec3 b = vec3(0.93, 0.88, 0.80);  // creme/off-white stoftone
-vec3 c = vec3(0.78, 0.70, 0.60);  // sandfarvet mellemtonedybde
-vec3 d = vec3(0.45, 0.40, 0.34);  // dyb skygge i varm taupe/sand
+vec3 a = vec3(0.0, 0.63, 0.40);  // lys grøn highlight baseret på #00291A palette
+vec3 b = vec3(0.0, 0.50, 0.33);  // mellem lys grøn stoftone
+vec3 c = vec3(0.0, 0.40, 0.27);  // mellem grøn mellemtonedybde
+vec3 d = vec3(0.0, 0.16, 0.10);  // dyb mørkegrøn skygge (#00291A)
 
 
     // Optimized color mixing: precompute smoothstep calls
@@ -336,6 +361,11 @@ onMounted(() => {
   // Sæt mobil status ved start
   updateMobileStatus();
   window.addEventListener('resize', updateMobileStatus);
+  
+  // Initialize header top position and set up resize handler
+  initialViewportHeight.value = window.innerHeight;
+  updateHeaderTopPosition();
+  window.addEventListener('resize', updateHeaderTopPosition);
 
   // Scroll til toppen med instant behavior - gentag flere gange for at sikre det virker
   const resetScroll = () => {
@@ -516,6 +546,7 @@ onMounted(() => {
   
   cleanupFunctions.push(() => window.removeEventListener('scroll', handleScroll));
   cleanupFunctions.push(() => window.removeEventListener('resize', updateMobileStatus));
+  cleanupFunctions.push(() => window.removeEventListener('resize', updateHeaderTopPosition));
 
   // GSAP ScrollTrigger animation for content management section
   // Vent lidt så elementerne er renderet
@@ -645,6 +676,14 @@ onMounted(() => {
         const isMacBook14 = window.innerWidth >= 1440 && window.innerWidth <= 1700;
         if (isMacBook14 && textToUse.includes('uden')) {
           textToUse = textToUse.replace(' uden ', ' <br>uden ');
+        }
+        
+        // Tjek om vi er på MacBook 13" størrelse og indsæt linjeskift
+        const isMacBook13 = window.innerWidth >= 1280 && window.innerWidth <= 1440;
+        if (isMacBook13) {
+          // Tilføj dine linjeskift her - eksempel:
+          // textToUse = textToUse.replace(' dit ord ', ' <br>dit ord ');
+          // Du kan tilføje flere linjeskift ved at tilføje flere replace() kald
         }
         
         contentTitle.value.innerHTML = textToUse;
@@ -1229,6 +1268,26 @@ onMounted(() => {
       }
     }
 
+    // Autofocus på domain input felt når sektionen kommer ind i viewport
+    if (domainCheckComponent.value && domainCheckComponent.value.domainInput) {
+      const domainInputElement = domainCheckComponent.value.domainInput;
+      const domainCheckSection = domainInputElement.closest('.domain-check-section');
+      
+      if (domainCheckSection && domainInputElement) {
+        ScrollTrigger.create({
+          trigger: domainCheckSection,
+          start: 'top 60%',
+          once: true, // Kør kun én gang
+          onEnter: () => {
+            // Fokuser på input feltet
+            setTimeout(() => {
+              domainInputElement.focus();
+            }, 100); // Lille delay for at sikre at animationen er startet
+          }
+        });
+      }
+    }
+
     // Scroll-baseret farvetransition for FAQ header tekst
     // Samme animation som de andre header tekster
     if (faqComponent.value && faqComponent.value.faqHeader) {
@@ -1506,17 +1565,15 @@ const imageList = computed(() => {
     <Navbar />
     
     <!-- Header med billede -->
-    <header class="header-section max-sm:-mt-8">
+    <header class="header-section max-sm:-mt-8" :style="{ top: headerTopPosition }">
       <div class="grid-container grid max-sm:grid-cols-6">
-        <div class="hero-content max-sm:col-span-6 max-sm:col-start-1">
-          <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.eyebrow') }}</p>
-          <h1 class="text-[2.25rem] sm:text-[3rem] md:text-[4rem] xl:text-[6rem] font-bold leading-[1.1] mb-6 text-white tracking-[-0.02em]" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.title') }}</h1>
-          <p class="text-[0.95rem] sm:text-base lg:text-lg xl:text-xl leading-relaxed text-white/90 font-normal max-sm:max-w-[calc(83.333%-0.75rem)]" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.subtitle') }}</p>
-        </div>
+        <p class="hero-eyebrow text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 max-sm:col-span-6 max-sm:col-start-1" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.eyebrow') }}</p>
+        <h1 class="hero-title text-[2.25rem] sm:text-[3rem] md:text-[4rem] xl:text-[6rem] font-bold leading-[1.1] mb-6 text-white tracking-[-0.02em] max-sm:col-span-6 max-sm:col-start-1" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.title') }}</h1>
+        <p class="hero-subtitle text-[0.95rem] sm:text-base lg:text-lg xl:text-xl leading-relaxed text-white/90 font-normal max-sm:max-w-[calc(83.333%-0.75rem)] max-sm:col-span-6 max-sm:col-start-1" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.subtitle') }}</p>
       </div>
       
       <!-- Stack Container - kun på mobil, UNDER grid-containeren -->
-      <div ref="stackContainerRef" class="hidden max-sm:block w-full max-sm:h-[70vh] border-2 border-[#00ffff] relative"></div>
+      <div ref="stackContainerRef" class="hidden max-sm:block w-full max-sm:h-[70vh] border-2 border-[#00291A] relative"></div>
     </header>
 
     <!-- Scroll indicator - fixed i bunden -->
@@ -1524,11 +1581,11 @@ const imageList = computed(() => {
       class="scroll-indicator fixed bottom-6 sm:bottom-8 md:bottom-10 lg:bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-[1000] group"
       :style="{ opacity: heroOpacity }"
     >
-      <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 m-0 group-hover:text-[rgb(199,179,153)] transition-colors">{{ t('hero.scroll') }}</p>
+      <p class="text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 m-0 group-hover:text-[#006644] transition-colors">{{ t('hero.scroll') }}</p>
       <div class="flex flex-col gap-1 items-center">
-        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(199,179,153)] transition-colors" style="animation-delay: 0s"></span>
-        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(199,179,153)] transition-colors" style="animation-delay: 0.15s"></span>
-        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[rgb(199,179,153)] transition-colors" style="animation-delay: 0.3s"></span>
+        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[#006644] transition-colors" style="animation-delay: 0s"></span>
+        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[#006644] transition-colors" style="animation-delay: 0.15s"></span>
+        <span class="scroll-line w-6 h-[0.1rem] bg-white/70 rounded-sm group-hover:bg-[#006644] transition-colors" style="animation-delay: 0.3s"></span>
       </div>
     </div>
 
@@ -1714,8 +1771,9 @@ html, body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  top: 38rem;
+  /* top position is now set dynamically via :style binding */
   justify-content: flex-start;
+  z-index: 10; /* Højere end three-container */
 }
 
 /* Mobil: Juster header-sektionens højde */
@@ -1726,10 +1784,56 @@ html, body {
   }
 }
 
+/* MacBook 13" specifik styling - flyt header sektion op */
+@media (min-width: 1280px) and (max-width: 1440px) {
+  .header-section {
+    transform: translateY(-9rem); /* Flyt header sektionen op */
+  }
 
-.hero-content {
-  grid-column: 1 / 9; /* Spænder over de første 8 kolonner */
+  /* Mindre font-size og grid-column placering på alle 3 hero tekster i grid-container */
+  .hero-eyebrow {
+    font-size: 0.6rem !important; /* Eyebrow tekst */
+    grid-column: 1 / -1 !important; /* Ændre denne værdi for at justere placering (fx: 1 / 8, 2 / 9, osv.) */
+  }
+
+  .hero-title {
+    font-size: 3.5rem !important; /* Title tekst */
+    grid-column: 1 / 8 !important; /* Ændre denne værdi for at justere placering (fx: 1 / 9, 2 / 10, osv.) */
+    margin-bottom: 0 !important; /* Fjern margin-bottom */
+  }
+
+  .hero-subtitle {
+    font-size: 0.8rem !important; /* Subtitle tekst */
+    grid-column: 1 / -1 !important; /* Ændre denne værdi for at justere placering (fx: 1 / 8, 2 / 9, osv.) */
+  }
+
+  /* Mindre font-size og flyt "scroll ned" teksten ned */
+  .scroll-indicator {
+    bottom: 1rem !important; /* Flyt ned fra standard bottom-6 (1.5rem) */
+  }
+  
+  .scroll-indicator p {
+    font-size: 0.65rem !important; /* Mindre end text-xs (0.75rem) */
+  }
+
+  /* Bredere grid-container på MacBook 13" */
+  /* Tilføj styling her hvis nødvendigt */
+
+  /* Mindre font-size på content-title */
+  .content-title {
+    font-size: 2.8rem !important; /* Mindre end standard 4.5rem */
+    grid-column: 3 / 11 !important; /* Bredere - spænder over alle kolonner */
+  }
+}
+
+/* Hero tekster styling - teksterne er nu direkte i grid-container */
+.hero-eyebrow,
+.hero-title,
+.hero-subtitle {
   color: #fff;
+  position: relative;
+  z-index: 11; /* Højere end header-section og three-container */
+  grid-column: 1 / 9; /* Spænder over de første 8 kolonner */
 }
 
 
@@ -1738,19 +1842,21 @@ html, body {
 
 
 
-/* Responsive design for hero */
+/* Responsive design for hero tekster */
 @media (max-width: 1024px) {
-  .hero-content {
+  .hero-eyebrow,
+  .hero-title,
+  .hero-subtitle {
     grid-column: 1 / 10; /* Spænder over 9 kolonner på mellemstore skærme */
   }
-  
 }
 
 @media (max-width: 768px) {
-  .hero-content {
+  .hero-eyebrow,
+  .hero-title,
+  .hero-subtitle {
     grid-column: 1 / 13; /* Spænder over alle 12 kolonner på små skærme */
   }
-  
 }
 
 @media (max-width: 480px) {
@@ -1946,6 +2052,47 @@ html, body {
 
   .content-management-section .feature-boxes-container {
     margin-top: 2rem;
+  }
+}
+
+/* MacBook 13" - eyebrow tekst og overskrift i feature boxes section */
+@media (min-width: 1280px) and (max-width: 1440px) {
+  .feature-boxes-section p:first-child {
+    font-size: 0.6rem !important;
+  }
+  .feature-boxes-header {
+    font-size: 2rem !important;
+  }
+}
+
+/* 27" skærmstørrelse (ca. 2560px bred) */
+@media (min-width: 2500px) and (max-width: 2700px) {
+  .hero-eyebrow {
+    font-size: 1.1rem !important; /* Gør hero eyebrow større - justér denne værdi efter behov */
+  }
+  .hero-subtitle {
+    font-size: 1.5rem !important; /* Gør hero subtitle større - justér denne værdi efter behov */
+  }
+  .feature-boxes-section p:first-child {
+    font-size: 1.2rem !important; /* Gør eyebrow større - justér denne værdi efter behov */
+  }
+  .feature-boxes-header {
+    font-size: 4.5rem !important; /* Gør overskrift større - justér denne værdi efter behov */
+  }
+}
+
+/* 27" skærme (2560px og opefter) - gør hero title større og ryk teksterne ned */
+@media (min-width: 2560px) {
+  .header-section {
+    padding-top: 14rem; /* Ryk alle hero tekster ned */
+  }
+  
+  .hero-title {
+    font-size: 8.5rem !important; /* Større end standard xl:text-[6rem] */
+  }
+  
+  .content-title {
+    grid-column: 3 / 11; /* Juster kolonne placering for 27" skærme */
   }
 }
 

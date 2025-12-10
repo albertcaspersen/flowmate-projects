@@ -23,8 +23,8 @@
         v-for="index in [0, 1]"
         :key="index"
         :ref="el => setFaqSquareRef(el, index)"
-            class="faq-square bg-[rgba(115,102,87,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(199,179,153,0.6)] hover:-translate-y-0.5"
-        :class="{ 'is-open bg-[rgba(199,179,153,0.7)]': openIndex === index }"
+            class="faq-square bg-[rgba(0,41,26,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(0,30,20,0.9)] hover:-translate-y-0.5"
+        :class="{ 'is-open bg-[rgba(0,25,16,0.95)]': openIndex === index }"
         @click="toggleItem(index)"
       >
         <div class="w-full h-full flex flex-col">
@@ -52,8 +52,8 @@
         v-for="index in [2, 3]"
         :key="index"
         :ref="el => setFaqSquareRef(el, index)"
-            class="faq-square bg-[rgba(115,102,87,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(199,179,153,0.6)] hover:-translate-y-0.5"
-        :class="{ 'is-open bg-[rgba(199,179,153,0.7)]': openIndex === index }"
+            class="faq-square bg-[rgba(0,41,26,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(0,30,20,0.9)] hover:-translate-y-0.5"
+        :class="{ 'is-open bg-[rgba(0,25,16,0.95)]': openIndex === index }"
         @click="toggleItem(index)"
       >
         <div class="w-full h-full flex flex-col">
@@ -81,8 +81,8 @@
         v-for="index in [4, 5]"
         :key="index"
         :ref="el => setFaqSquareRef(el, index)"
-            class="faq-square bg-[rgba(115,102,87,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(199,179,153,0.6)] hover:-translate-y-0.5"
-        :class="{ 'is-open bg-[rgba(199,179,153,0.7)]': openIndex === index }"
+            class="faq-square bg-[rgba(0,41,26,0.8)] rounded-2xl p-6 cursor-pointer transition-[background-color,transform] duration-500 ease-out flex flex-col justify-start hover:bg-[rgba(0,30,20,0.9)] hover:-translate-y-0.5"
+        :class="{ 'is-open bg-[rgba(0,25,16,0.95)]': openIndex === index }"
         @click="toggleItem(index)"
       >
         <div class="w-full h-full flex flex-col">
@@ -264,8 +264,24 @@ const toggleItem = (index) => {
   }
 }
 
+/* MacBook 13" - eyebrow tekst, overskrift og FAQ kort overskrifter */
+@media (min-width: 1280px) and (max-width: 1440px) {
+  .faq-section p:first-child {
+    font-size: 0.6rem !important;
+  }
+  .faq-section h2 {
+    font-size: 2rem !important;
+  }
+  .faq-square h3 {
+    font-size: 0.6rem !important;
+  }
+  .faq-square {
+    height: 12.5rem !important;
+  }
+}
+
 /* Reducer font-størrelse på overskrifter og tekst i FAQ kort til MacBook Pro 14" */
-@media (min-width: 1024px) and (max-width: 1700px) {
+@media (min-width: 1445px) and (max-width: 1700px) {
   .faq-section h2 {
     font-size: 2.5rem;
   }
@@ -274,6 +290,19 @@ const toggleItem = (index) => {
   }
   .faq-square p {
     font-size: 0.8rem;
+  }
+}
+
+/* 27" skærmstørrelse (ca. 2560px bred) - gør eyebrow og overskrift større */
+@media (min-width: 2500px) and (max-width: 2700px) {
+  .faq-section p:first-child {
+    font-size: 1.2rem !important; /* Matcher features eyebrow - justér denne værdi efter behov */
+  }
+  .faq-section h2 {
+    font-size: 4.5rem !important; /* Matcher andre overskrifter - justér denne værdi efter behov */
+  }
+  .faq-square h3 {
+    font-size: 1.7rem !important; /* Gør FAQ kort overskrifter større - justér denne værdi efter behov */
   }
 }
 </style>

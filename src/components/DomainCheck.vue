@@ -522,10 +522,36 @@ const checkViaAlternativeMethod = async (fullDomain) => {
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
+/* MacBook 13" - eyebrow tekst, overskrift og input */
+@media (min-width: 1280px) and (max-width: 1440px) {
+  .domain-check-eyebrow {
+    font-size: 0.6rem !important;
+  }
+  .domain-check-header {
+    font-size: 2rem !important;
+  }
+  .domain-input-large {
+    font-size: 5rem !important;
+  }
+  .blinking-cursor {
+    font-size: 5rem !important;
+  }
+}
+
 /* Reducer font-størrelse på domain check overskrift til MacBook Pro 14" */
-@media (min-width: 1024px) and (max-width: 1700px) {
+@media (min-width: 1445px) and (max-width: 1700px) {
   .domain-check-header {
     font-size: 2.5rem;
+  }
+}
+
+/* 27" skærmstørrelse (ca. 2560px bred) - gør eyebrow og overskrift større */
+@media (min-width: 2500px) and (max-width: 2700px) {
+  .domain-check-eyebrow {
+    font-size: 1.2rem !important; /* Matcher features eyebrow - justér denne værdi efter behov */
+  }
+  .domain-check-header {
+    font-size: 4.5rem !important; /* Matcher andre overskrifter - justér denne værdi efter behov */
   }
 }
 </style>

@@ -26,7 +26,7 @@ const translations = {
     
     // Flowmate AI Section
     'ai.eyebrow': 'FLOWMATE MED AI',
-    'ai.title': 'Din AI-assistent er altid ved hånden',
+    'ai.title': 'Med Flowmates AI bliver du endnu mere effektiv.',
     'ai.description': 'Ved hånden har du altid vores AI, som assisterer dig med at skabe lige netop dét, som du ønsker. Om du skal skrive tekster, gentænke sidens brugerrejse eller bare få kreative inputs, så hjælper Flowmates AI dig hurtigt og effektivt.',
     'ai.button': 'Prøv i dag',
     

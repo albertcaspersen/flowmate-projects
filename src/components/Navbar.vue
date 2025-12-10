@@ -33,11 +33,11 @@
       </div>
 
       <!-- Knapper til højre - hver med sin grid position -->
-      <button class="nav-button-macbook14 col-span-1 col-start-11 max-[768px]:col-span-1 max-[768px]:col-start-5 macbook14:col-start-11 macbook14:col-span-1 bg-[rgb(115,102,87)] text-white border-none rounded-lg max-[768px]:rounded-md py-[0.625rem] max-[768px]:py-[0.375rem] macbook14:py-[0.5rem] px-[0.625rem] max-[768px]:px-0 macbook14:px-[0.5rem] text-[0.95rem] max-[768px]:text-[0.7rem] font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[rgb(199,179,153)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(199,179,153,0.5)]">
+      <button class="nav-button-responsive col-span-1 col-start-11 max-[768px]:col-span-1 max-[768px]:col-start-5 macbook14:col-start-11 macbook14:col-span-1 bg-[#00291A] text-white border-none rounded-lg max-[768px]:rounded-md font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[#006644] focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,102,68,0.5)]">
         <span class="max-[768px]:hidden">{{ t('nav.getStarted') }}</span>
         <span class="hidden max-[768px]:inline">{{ t('nav.tryNow') }}</span>
       </button>
-      <button @click="toggleLanguage" class="nav-button-macbook14 col-span-1 col-start-12 max-[768px]:col-span-1 max-[768px]:col-start-6 macbook14:col-start-12 macbook14:col-span-1 bg-[rgb(115,102,87)] text-white rounded-lg max-[768px]:rounded-md py-[0.625rem] max-[768px]:py-[0.375rem] macbook14:py-[0.5rem] px-[0.625rem] max-[768px]:px-0 macbook14:px-[0.5rem] text-[0.95rem] max-[768px]:text-[0.7rem] max-[768px]:text-center font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[rgb(199,179,153)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(199,179,153,0.5)]">{{ t('nav.english') }}</button>
+      <button @click="toggleLanguage" class="nav-button-responsive col-span-1 col-start-12 max-[768px]:col-span-1 max-[768px]:col-start-6 macbook14:col-start-12 macbook14:col-span-1 bg-[#00291A] text-white rounded-lg max-[768px]:rounded-md max-[768px]:text-center font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[#006644] focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,102,68,0.5)]">{{ t('nav.english') }}</button>
     </div>
   </nav>
 </template>
@@ -54,10 +54,126 @@ const toggleLanguage = () => {
 </script>
 
 <style scoped>
-/* Custom styling for MacBook Pro 14" only (1024px - 1700px range) */
+/* Responsive tekststørrelse for knapperne */
+.nav-button-responsive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  word-break: keep-all;
+  hyphens: none;
+  box-sizing: border-box;
+}
+
+.nav-button-responsive span {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Sikre at spans kan skjules korrekt med Tailwind classes */
+.nav-button-responsive span.hidden {
+  display: none !important;
+}
+
+.nav-button-responsive span.max-\[768px\]\:hidden {
+  display: inline-block;
+}
+
+@media (max-width: 768px) {
+  .nav-button-responsive span.max-\[768px\]\:hidden {
+    display: none !important;
+  }
+  
+  .nav-button-responsive span.max-\[768px\]\:inline {
+    display: inline-block !important;
+  }
+}
+
+/* Desktop større skærme */
+@media (min-width: 1701px) {
+  .nav-button-responsive {
+    font-size: 0.85rem;
+    padding: 0.625rem 1.25rem;
+    min-height: 2.75rem;
+  }
+}
+
+/* MacBook Pro 14" og lignende (1024px - 1700px) */
 @media (min-width: 1024px) and (max-width: 1700px) {
-  .nav-button-macbook14 {
-    font-size: 0.8rem; /* 12px */
+  .nav-button-responsive {
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
+    min-height: 2.5rem;
+  }
+}
+
+/* Tablet størrelse (769px - 1023px) */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .nav-button-responsive {
+    font-size: 0.7rem;
+    padding: 0.5rem 0.875rem;
+    min-height: 2.5rem;
+  }
+}
+
+/* Mobil størrelse (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .nav-button-responsive {
+    font-size: 0.65rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 2.25rem;
+  }
+}
+
+/* Meget små skærme (op til 480px) */
+@media (max-width: 480px) {
+  .nav-button-responsive {
+    font-size: 0.6rem;
+    padding: 0.5rem 0.625rem;
+    min-height: 2rem;
+  }
+}
+
+/* MacBook 13" specifik styling - gør logo mindre */
+@media (min-width: 1280px) and (max-width: 1440px) {
+  nav .col-span-6 > div {
+    height: 2rem; /* Mindre end standard clamp(2.5rem,2.75rem,3rem) */
+  }
+  
+  nav .col-span-6 svg {
+    height: 2rem;
+    width: auto;
+  }
+  
+  /* Gør knapper mindre høje */
+  .nav-button-responsive {
+    min-height: 2rem; /* Mindre end standard 2.5rem */
+    padding: 0.4rem 0.9rem; /* Mindre padding */
+    font-size: 0.7rem; /* Mindre font-size */
+  }
+}
+
+/* 27" skærme (2560px og opefter) - gør logo større */
+@media (min-width: 2560px) {
+  nav .col-span-6 > div {
+    height: clamp(3.5rem, 4rem, 4.5rem); /* Større end standard */
+  }
+  
+  nav .col-span-6 svg {
+    height: clamp(3.5rem, 4rem, 4.5rem);
+    width: auto;
+  }
+  
+  /* Gør knapper større */
+  .nav-button-responsive {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    min-height: 3.5rem;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer-section w-full relative bg-[rgb(115,102,87)] border-t border-[rgb(115,102,87)]">
+  <footer class="footer-section w-full relative bg-[#00291A] border-t border-[#00291A]">
     <div class="footer-wave-top">
       <svg class="wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
         <path class="wave-path">
@@ -184,7 +184,7 @@ const { t } = injectI18n();
 }
 
 .wave-path {
-  fill: rgb(115, 102, 87);
+  fill: #00291A;
 }
 
 @keyframes wave-scroll {
