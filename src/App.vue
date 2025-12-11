@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import ImageViewer from './components/ImageViewer.vue';
+import MobileImageStack from './components/MobileImageStack.vue';
 import Navbar from './components/Navbar.vue';
 import Preloader from './components/Preloader.vue';
 // import FeatureBoxes from './components/FeatureBoxes.vue';
@@ -26,7 +27,7 @@ const { t } = i18n;
 // const backgroundVideo = '/pics/Skærmoptagelse 2025-11-19 kl. 16.27.52.mp4'; // ERSTATTET MED SHADER
 const mobileBackground = '/pics/Skærmbillede 2025-11-21 kl. 10.24.52.png'; // Bruges nu som tekstur i shaderen
 
-// Spiralbilleder fra public mappen
+// Spiralbilleder fra public mappen (desktop)
 const spiral1 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.41.20.png';
 const spiral2 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.42.37.png';
 const spiral3 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.43.49.png';
@@ -36,6 +37,13 @@ const spiral6 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.47.18.png';
 const spiral7 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.47.46.png';
 const spiral8 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.48.55.png';
 const spiral9 = '/spiralpics/Skærmbillede 2025-11-20 kl. 12.51.29.png';
+
+// Mobilbilleder fra public/picsmobile mappen
+const mobile1 = '/picsmobile/Skærmbillede 2025-12-11 kl. 12.20.02.png';
+const mobile2 = '/picsmobile/Skærmbillede 2025-12-11 kl. 12.20.55.png';
+const mobile3 = '/picsmobile/Skærmbillede 2025-12-11 kl. 12.21.40.png';
+const mobile4 = '/picsmobile/Skærmbillede 2025-12-11 kl. 12.22.18.png';
+const mobile5 = '/picsmobile/Skærmbillede 2025-12-11 kl. 12.23.16.png';
 
 const startIndex = ref(0);
 const heroOpacity = ref(1);
@@ -278,10 +286,11 @@ void main() {
     float v = n1 * 0.55 + n2 * 0.45;
     v = pow(v, 0.7);
 
-vec3 a = vec3(0.0, 0.63, 0.40);  // lys grøn highlight baseret på #00291A palette
-vec3 b = vec3(0.0, 0.50, 0.33);  // mellem lys grøn stoftone
-vec3 c = vec3(0.0, 0.40, 0.27);  // mellem grøn mellemtonedybde
-vec3 d = vec3(0.0, 0.16, 0.10);  // dyb mørkegrøn skygge (#00291A)
+
+    vec3 a = vec3(0.8, 0.20, 0.40);
+    vec3 b = vec3(0.0, 0.50, 0.33);
+    vec3 c = vec3(0.0, 0.40, 0.27);
+    vec3 d = vec3(0.0, 0.20, 0.10);
 
 
     // Optimized color mixing: precompute smoothstep calls
@@ -1235,7 +1244,6 @@ onMounted(() => {
       
       if (domainCheckSection) {
         const elements = [
-          domainCheckComponent.value.checkTitle,
           domainCheckComponent.value.domainCheckForm,
           domainCheckComponent.value.domainNote
         ].filter(Boolean); // Fjern null værdier
@@ -1281,7 +1289,7 @@ onMounted(() => {
           onEnter: () => {
             // Fokuser på input feltet
             setTimeout(() => {
-              domainInputElement.focus();
+              domainInputElement.focus({ preventScroll: true });
             }, 100); // Lille delay for at sikre at animationen er startet
           }
         });
@@ -1414,12 +1422,16 @@ onMounted(() => {
       }
     }
 
-    // Pin stack container på mobil
+    // Pin stack container på mobil - MobileImageStack håndterer sin egen scroll animation
     if (stackContainerRef.value && isMobile.value) {
+      // Beregn scroll højde baseret på antal billeder (samme som i MobileImageStack)
+      const scrollPerImage = 900; // viewport højder per billede (meget mere scroll)
+      const totalScrollHeight = scrollPerImage * imageList.value.length;
+      
       ScrollTrigger.create({
         trigger: stackContainerRef.value,
         start: 'top top',
-        end: '+=300vh',
+        end: `+=${totalScrollHeight}vh`,
         pin: true,
         pinSpacing: true,
       });
@@ -1531,7 +1543,8 @@ const featureBoxesHeaderWords = computed(() => {
   return words;
 });
 
-const allImages = [
+// Desktop billeder (spiral)
+const desktopImages = [
   { id: 1, src: spiral1, alt: 'Spiral billede 1' },
   { id: 2, src: spiral2, alt: 'Spiral billede 2' },
   { id: 3, src: spiral3, alt: 'Spiral billede 3' },
@@ -1543,8 +1556,17 @@ const allImages = [
   { id: 9, src: spiral9, alt: 'Spiral billede 9' }
 ];
 
+// Mobil billeder (picsmobile)
+const mobileImages = [
+  { id: 1, src: mobile1, alt: 'Mobil billede 1' },
+  { id: 2, src: mobile2, alt: 'Mobil billede 2' },
+  { id: 3, src: mobile3, alt: 'Mobil billede 3' },
+  { id: 4, src: mobile4, alt: 'Mobil billede 4' },
+  { id: 5, src: mobile5, alt: 'Mobil billede 5' }
+];
+
 const imageList = computed(() => {
-  return isMobile.value ? allImages.slice(0, 5) : allImages;
+  return isMobile.value ? mobileImages : desktopImages;
 });
 </script>
 
@@ -1572,8 +1594,10 @@ const imageList = computed(() => {
         <p class="hero-subtitle text-[0.95rem] sm:text-base lg:text-lg xl:text-xl leading-relaxed text-white/90 font-normal max-sm:max-w-[calc(83.333%-0.75rem)] max-sm:col-span-6 max-sm:col-start-1" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.subtitle') }}</p>
       </div>
       
-      <!-- Stack Container - kun på mobil, UNDER grid-containeren -->
-      <div ref="stackContainerRef" class="hidden max-sm:block w-full max-sm:h-[70vh] border-2 border-[#00291A] relative"></div>
+      <!-- Mobile Image Stack - kun på mobil, UNDER grid-containeren -->
+      <div ref="stackContainerRef" class="hidden max-sm:block w-screen h-screen relative max-sm:mt-[9em]">
+        <MobileImageStack :images="imageList" />
+      </div>
     </header>
 
     <!-- Scroll indicator - fixed i bunden -->
@@ -1641,7 +1665,7 @@ const imageList = computed(() => {
     <section class="feature-boxes-section w-full min-h-screen relative bg-transparent pt-0 pb-24 flex items-center lg:pt-0 lg:pb-20 md:pt-0 md:pb-16 sm:pt-0 sm:pb-12 -mt-[40rem] lg:-mt-[30rem] md:-mt-[20rem] sm:-mt-[15rem] max-sm:-mt-16 z-0">
       <div class="grid-container mt-48 lg:mt-80 md:mt-32 sm:mt-24 max-sm:-mt-8">
         <p class="row-start-1 col-start-1 col-span-4 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 lg:mb-0 md:mb-6 max-sm:mb-6">{{ t('features.eyebrow') }}</p>
-        <h2 ref="featureBoxesHeader" class="row-start-3 col-start-1 col-span-4 lg:row-start-2 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:col-[1/6] text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-0 lg:mb-0 md:mb-10 text-white feature-boxes-header">
+        <h2 ref="featureBoxesHeader" class="row-start-3 col-start-1 col-span-4 lg:row-start-2 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:row-start-2 max-sm:col-[1/6] text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-0 lg:mb-0 md:mb-10 text-white feature-boxes-header">
           <span v-for="(word, wordIndex) in featureBoxesHeaderWords" :key="wordIndex" class="word-wrapper" :class="{ 'space-wrapper': word.isSpace }" :data-word-index="wordIndex">
             <span v-for="(char, charIndex) in word.chars" :key="charIndex" :data-index="word.startIndex + charIndex" class="char-span">
               {{ char === ' ' ? '\u00A0' : char }}
@@ -2009,10 +2033,11 @@ html, body {
 @media (max-width: 768px) {
   .content-management-section {
     padding: 60px 0 0;
+    margin-top: -160rem; /* Rykker hele sektionen op på mobil */
   }
 
   .content-management-section .grid-container {
-    margin-top: -2rem;
+    margin-top: -0rem;
   }
 
   .content-eyebrow {
@@ -2020,11 +2045,34 @@ html, body {
   }
 
   .content-title {
+    /* Typography */
     font-size: 2rem;
+    font-weight: 700;
     line-height: 1.2;
+    letter-spacing: -0.02em;
+    
+    /* Colors */
+    color: #ffffff;
+    
+    /* Layout */
     grid-column: 1 / 7; /* Spænder over alle 6 kolonner */
+    grid-row: 2; /* Placer i row 2 på mobil */
+    text-align: center;
+    
+    /* Spacing */
     padding: 0 1rem;
+    margin: 0;
+    
+    /* Text */
     white-space: normal;
+    text-transform: none;
+    
+    /* Display */
+    display: block;
+    opacity: 1;
+    
+    /* Transform */
+    transform: none;
   }
 
   .content-management-section .feature-boxes-container {
@@ -2042,12 +2090,20 @@ html, body {
   }
 
   .content-title {
-    font-size: 1.7rem;
+    /* Typography */
+    font-size: 1.5rem;
+    font-weight: 700;
     line-height: 1.3;
+    color: #ffffff;
     grid-column: 1 / 7; /* Spænder over alle 6 kolonner */
-    padding: 0 1.5rem;
+    grid-row: 2; /* Placer i row 2 på mobil */
+    padding: 0 0rem;
+    text-align: left;
     white-space: normal;
-    
+    text-transform: none;
+    display: block;
+    opacity: 1;
+    transform: none;
   }
 
   .content-management-section .feature-boxes-container {

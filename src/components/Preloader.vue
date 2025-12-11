@@ -122,7 +122,7 @@ defineExpose({
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgb(102, 86, 66);
+  background: rgb(0, 52, 30);
   display: flex;
   align-items: center;
   justify-content: center;

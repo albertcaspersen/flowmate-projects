@@ -32,7 +32,7 @@
             <h3 class="font-semibold text-lg mb-3 text-white leading-[1.4] pr-12">
               {{ faqItems[index].question }}
             </h3>
-            <span class="absolute -top-2 right-0 text-white text-4xl font-light transition-transform duration-300 leading-none">
+            <span class="faq-toggle-icon absolute -top-2 right-0 text-white text-4xl font-light transition-transform duration-300 leading-none">
               {{ openIndex === index ? '−' : '+' }}
             </span>
           </div>
@@ -61,7 +61,7 @@
             <h3 class="font-semibold text-lg mb-3 text-white leading-[1.4] pr-12">
               {{ faqItems[index].question }}
             </h3>
-            <span class="absolute -top-2 right-0 text-white text-4xl font-light transition-transform duration-300 leading-none">
+            <span class="faq-toggle-icon absolute -top-2 right-0 text-white text-4xl font-light transition-transform duration-300 leading-none">
               {{ openIndex === index ? '−' : '+' }}
             </span>
           </div>
@@ -90,7 +90,7 @@
             <h3 class="font-semibold text-lg mb-3 text-white leading-[1.4] pr-12">
               {{ faqItems[index].question }}
             </h3>
-            <span class="absolute -top-2 right-0 text-white text-4xl font-light transition-transform duration-300 leading-none">
+            <span class="faq-toggle-icon absolute -top-2 right-0 text-white text-4xl font-light transition-transform duration-300 leading-none">
               {{ openIndex === index ? '−' : '+' }}
             </span>
           </div>
@@ -303,6 +303,9 @@ const toggleItem = (index) => {
   }
   .faq-square h3 {
     font-size: 1.7rem !important; /* Gør FAQ kort overskrifter større - justér denne værdi efter behov */
+  }
+  .faq-toggle-icon {
+    font-size: 3rem !important; /* Gør + tegnet lidt større på 27" skærme */
   }
 }
 </style>
