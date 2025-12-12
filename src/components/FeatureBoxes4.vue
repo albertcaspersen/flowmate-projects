@@ -2,16 +2,16 @@
   <div class="contents">
     <!-- Feature Box 1 -->
     <slot name="feature-box-1-content">
-      <div class="flex flex-col items-start gap-4 row-[2] col-[1/4] lg:col-[7/10] md:col-[1/7] max-sm:row-[3] max-sm:col-[1/7] max-sm:mt-12">
+      <div class="flex flex-col items-start gap-4 row-[3] md:row-[2] col-[1/7] md:col-[7/10] mt-12 md:mt-0">
         <div ref="icon1" class="icon-container w-12 h-12 bg-[rgba(0,41,26,0.8)] rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-[rgba(0,102,68,0.5)]">
           <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           </svg>
         </div>
-        <h3 ref="title1" class="text-2xl font-bold text-white m-0 leading-tight lg:text-xl max-[480px]:text-lg font-sans">
+        <h3 ref="title1" class="text-lg sm:text-2xl lg:text-xl font-bold text-white m-0 leading-tight font-sans">
           {{ t('features.box1.title') }}
         </h3>
-        <p ref="description1" class="text-base leading-relaxed text-white/85 m-0 font-normal font-sans lg:text-[0.95rem] max-[480px]:text-[0.9rem]">
+        <p ref="description1" class="text-[0.9rem] sm:text-base lg:text-[0.95rem] leading-relaxed text-white/85 m-0 font-normal font-sans">
           {{ t('features.box1.description') }}
         </p>
       </div>
@@ -19,7 +19,7 @@
 
     <!-- Feature Box 2 -->
     <slot name="feature-box-2-content">
-      <div class="flex flex-col items-start gap-4 row-[2] col-[4/7] lg:col-[10/13] md:col-[7/13] max-sm:row-[4] max-sm:col-[1/7] max-sm:mt-12">
+      <div class="flex flex-col items-start gap-4 row-[4] md:row-[2] col-[1/7] md:col-[10/13] mt-12 md:mt-0">
         <div ref="icon2" class="icon-container w-12 h-12 bg-[rgba(0,41,26,0.8)] rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-[rgba(0,102,68,0.5)]">
           <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2L3 7L12 12L21 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -27,10 +27,10 @@
             <path d="M3 12L12 17L21 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           </svg>
         </div>
-        <h3 ref="title2" class="text-2xl font-bold text-white m-0 leading-tight lg:text-xl max-[480px]:text-lg font-sans">
+        <h3 ref="title2" class="text-lg sm:text-2xl lg:text-xl font-bold text-white m-0 leading-tight font-sans">
           {{ t('features.box2.title') }}
         </h3>
-        <p ref="description2" class="text-base leading-relaxed text-white/85 m-0 font-normal font-sans lg:text-[0.95rem] max-[480px]:text-[0.9rem]">
+        <p ref="description2" class="text-[0.9rem] sm:text-base lg:text-[0.95rem] leading-relaxed text-white/85 m-0 font-normal font-sans">
           {{ t('features.box2.description') }}
         </p>
       </div>
@@ -38,7 +38,7 @@
 
     <!-- Feature Box 3 -->
     <slot name="feature-box-3-content">
-      <div class="flex flex-col items-start gap-4 row-[3] col-[7/10] lg:col-[7/10] md:col-[1/7] max-sm:row-[5] max-sm:col-[1/7] max-sm:mt-12">
+      <div class="flex flex-col items-start gap-4 row-[5] md:row-[3] col-[1/7] md:col-[7/10] mt-12 md:mt-0">
         <div ref="icon3" class="icon-container w-12 h-12 bg-[rgba(0,41,26,0.8)] rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-[rgba(0,102,68,0.5)]">
           <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -46,10 +46,10 @@
             <path d="M12 2V6M12 18V22M2 12H6M18 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <h3 ref="title3" class="text-2xl font-bold text-white m-0 leading-tight lg:text-xl max-[480px]:text-lg font-sans">
+        <h3 ref="title3" class="text-lg sm:text-2xl lg:text-xl font-bold text-white m-0 leading-tight font-sans">
           {{ t('features.box3.title') }}
         </h3>
-        <p ref="description3" class="text-base leading-relaxed text-white/85 m-0 font-normal font-sans lg:text-[0.95rem] max-[480px]:text-[0.9rem]">
+        <p ref="description3" class="text-[0.9rem] sm:text-base lg:text-[0.95rem] leading-relaxed text-white/85 m-0 font-normal font-sans">
           {{ t('features.box3.description') }}
         </p>
       </div>
@@ -57,17 +57,17 @@
 
     <!-- Feature Box 4 -->
     <slot name="feature-box-4-content">
-      <div class="flex flex-col items-start gap-4 row-[3] col-[10/13] lg:col-[10/13] md:col-[7/13] max-sm:row-[6] max-sm:col-[1/7] max-sm:mt-12">
+      <div class="flex flex-col items-start gap-4 row-[6] md:row-[3] col-[1/7] md:col-[10/13] mt-12 md:mt-0">
         <div ref="icon4" class="icon-container w-12 h-12 bg-[rgba(0,41,26,0.8)] rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-[rgba(0,102,68,0.5)]">
           <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
             <path d="M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           </svg>
         </div>
-        <h3 ref="title4" class="text-2xl font-bold text-white m-0 leading-tight lg:text-xl max-[480px]:text-lg font-sans">
+        <h3 ref="title4" class="text-lg sm:text-2xl lg:text-xl font-bold text-white m-0 leading-tight font-sans">
           {{ t('features.box4.title') }}
         </h3>
-        <p ref="description4" class="text-base leading-relaxed text-white/85 m-0 font-normal font-sans lg:text-[0.95rem] max-[480px]:text-[0.9rem]">
+        <p ref="description4" class="text-[0.9rem] sm:text-base lg:text-[0.95rem] leading-relaxed text-white/85 m-0 font-normal font-sans">
           {{ t('features.box4.description') }}
         </p>
       </div>
@@ -120,34 +120,30 @@ p {
   visibility: hidden;
 }
 
-/* MacBook 13" - reducer font-størrelser i alle 4 bokse */
-@media (min-width: 1280px) and (max-width: 1440px) {
-  h3 {
-    font-size: 1rem !important;
-  }
-  p {
-    font-size: 0.8rem !important;
-  }
+/* ===========================================
+   FLUID RESPONSIVE - FeatureBoxes4
+   =========================================== */
+
+/* Card titles - FLUID */
+h3 {
+  font-size: clamp(1rem, 0.5rem + 0.8vw, 2.4rem) !important;
 }
 
-/* 27" skærmstørrelse (ca. 2560px bred) - gør alle feature boxes større */
-@media (min-width: 2500px) and (max-width: 2700px) {
-  h3 {
-    font-size: 2.4rem !important; /* Gør titler større - justér denne værdi efter behov */
-  }
-  p {
-    font-size: 1.45rem !important; /* Gør beskrivelser større - justér denne værdi efter behov */
-  }
-  .icon-container {
-    width: 4.875rem !important; /* Gør ikoner større - justér denne værdi efter behov */
-    height: 4.875rem !important;
-    margin-bottom: 1rem;
-    margin-top: 2rem;
-  }
-  .icon-container svg {
-    width: 2.4rem !important; /* Gør SVG større - justér denne værdi efter behov */
-    height: 2.4rem !important;
-  }
+/* Card descriptions - FLUID */
+p {
+  font-size: clamp(0.8rem, 0.5rem + 0.4vw, 1.45rem) !important;
+  line-height: 1.5em;
+}
+
+/* Icon container - FLUID */
+.icon-container {
+  width: clamp(2.5rem, 2rem + 1.5vw, 4.875rem) !important;
+  height: clamp(2.5rem, 2rem + 1.5vw, 4.875rem) !important;
+}
+
+.icon-container svg {
+  width: clamp(1.2rem, 1rem + 0.7vw, 2.4rem) !important;
+  height: clamp(1.2rem, 1rem + 0.7vw, 2.4rem) !important;
 }
 </style>
 

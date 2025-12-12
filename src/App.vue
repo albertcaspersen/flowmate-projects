@@ -83,22 +83,12 @@ const updateMobileStatus = () => {
 // Update header top position based on viewport height changes
 // This ensures hero texts follow viewport when resizing from both top and bottom
 const updateHeaderTopPosition = () => {
-  // Store initial viewport height on first call
-  if (initialViewportHeight.value === 0) {
-    initialViewportHeight.value = window.innerHeight;
-  }
+  // Fluid hero position: 60% of viewport height
+  // This creates consistent placement across all screen sizes
+  const viewportHeight = window.innerHeight;
+  const targetPosition = viewportHeight * 0.63; // 60% down from top
   
-  // Calculate the ratio of current viewport height to initial height
-  const heightRatio = window.innerHeight / initialViewportHeight.value;
-  
-  // Adjust the top position proportionally (38rem base value)
-  // Convert rem to pixels (assuming 16px base) and scale by ratio
-  const baseRem = 38;
-  const basePx = baseRem * 16;
-  const adjustedPx = basePx * heightRatio;
-  const adjustedRem = adjustedPx / 16;
-  
-  headerTopPosition.value = `${adjustedRem}rem`;
+  headerTopPosition.value = `${targetPosition}px`;
 };
 
 // Handle når spiral billeder er loadet
@@ -1587,15 +1577,15 @@ const imageList = computed(() => {
     <Navbar />
     
     <!-- Header med billede -->
-    <header class="header-section max-sm:-mt-8" :style="{ top: headerTopPosition }">
-      <div class="grid-container grid max-sm:grid-cols-6">
-        <p class="hero-eyebrow text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 max-sm:col-span-6 max-sm:col-start-1" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.eyebrow') }}</p>
-        <h1 class="hero-title text-[2.25rem] sm:text-[3rem] md:text-[4rem] xl:text-[6rem] font-bold leading-[1.1] mb-6 text-white tracking-[-0.02em] max-sm:col-span-6 max-sm:col-start-1" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.title') }}</h1>
-        <p class="hero-subtitle text-[0.95rem] sm:text-base lg:text-lg xl:text-xl leading-relaxed text-white/90 font-normal max-sm:max-w-[calc(83.333%-0.75rem)] max-sm:col-span-6 max-sm:col-start-1" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.subtitle') }}</p>
+    <header class="header-section -mt-8 sm:mt-0" :style="{ top: headerTopPosition }">
+      <div class="grid-container grid grid-cols-6 md:grid-cols-12">
+        <p class="hero-eyebrow text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 col-span-6 col-start-1 md:col-span-8" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.eyebrow') }}</p>
+        <h1 class="hero-title text-[2.25rem] sm:text-[3rem] md:text-[4rem] xl:text-[6rem] font-bold leading-[1.1] mb-6 text-white tracking-[-0.02em] col-span-6 col-start-1 md:col-span-8" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.title') }}</h1>
+        <p class="hero-subtitle text-[0.95rem] sm:text-base lg:text-lg xl:text-xl leading-relaxed text-white/90 font-normal max-w-[calc(83.333%-0.75rem)] sm:max-w-none col-span-6 col-start-1 md:col-span-8" :style="{ opacity: heroOpacity, filter: `blur(${heroBlur}px)` }">{{ t('hero.subtitle') }}</p>
       </div>
       
       <!-- Mobile Image Stack - kun på mobil, UNDER grid-containeren -->
-      <div ref="stackContainerRef" class="hidden max-sm:block w-screen h-screen relative max-sm:mt-[9em]">
+      <div ref="stackContainerRef" class="block sm:hidden w-screen h-screen relative mt-[9em]">
         <MobileImageStack :images="imageList" />
       </div>
     </header>
@@ -1662,10 +1652,10 @@ const imageList = computed(() => {
     <FlowmateAI ref="flowmateAIComponent" />
 
     <!-- Feature Boxes Section -->
-    <section class="feature-boxes-section w-full min-h-screen relative bg-transparent pt-0 pb-24 flex items-center lg:pt-0 lg:pb-20 md:pt-0 md:pb-16 sm:pt-0 sm:pb-12 -mt-[40rem] lg:-mt-[30rem] md:-mt-[20rem] sm:-mt-[15rem] max-sm:-mt-16 z-0">
-      <div class="grid-container mt-48 lg:mt-80 md:mt-32 sm:mt-24 max-sm:-mt-8">
-        <p class="row-start-1 col-start-1 col-span-4 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 lg:mb-0 md:mb-6 max-sm:mb-6">{{ t('features.eyebrow') }}</p>
-        <h2 ref="featureBoxesHeader" class="row-start-3 col-start-1 col-span-4 lg:row-start-2 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 max-sm:row-start-2 max-sm:col-[1/6] text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-0 lg:mb-0 md:mb-10 text-white feature-boxes-header">
+    <section class="feature-boxes-section w-full min-h-screen relative bg-transparent pt-0 pb-12 sm:pb-12 md:pb-16 lg:pb-20 xl:pb-24 flex items-center -mt-16 sm:-mt-[15rem] md:-mt-[20rem] lg:-mt-[25rem] xl:-mt-[20rem] 2xl:-mt-[30rem] 3xl:-mt-[40rem] z-0">
+      <div class="grid-container -mt-8 sm:mt-24 md:mt-32 lg:mt-48 xl:mt-24 2xl:mt-48 3xl:mt-80">
+        <p class="row-start-1 col-start-1 col-span-6 sm:col-span-6 md:col-span-12 lg:col-span-5 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6 md:mb-6 lg:mb-0">{{ t('features.eyebrow') }}</p>
+        <h2 ref="featureBoxesHeader" class="row-start-2 col-start-1 col-span-6 md:col-span-5 text-[1.5rem] sm:text-[2rem] md:text-[2.5rem] lg:text-[3rem] xl:text-[4.5rem] font-bold leading-[1.2] mb-0 md:mb-10 lg:mb-0 text-white feature-boxes-header">
           <span v-for="(word, wordIndex) in featureBoxesHeaderWords" :key="wordIndex" class="word-wrapper" :class="{ 'space-wrapper': word.isSpace }" :data-word-index="wordIndex">
             <span v-for="(char, charIndex) in word.chars" :key="charIndex" :data-index="word.startIndex + charIndex" class="char-span">
               {{ char === ' ' ? '\u00A0' : char }}
@@ -1741,38 +1731,41 @@ html, body {
   position: relative;
 }
 
-/* 12-kolonne grid system */
+/* 12-kolonne grid system - Mobile first */
 .grid-container {
+  /* Mobil (default): 6 kolonner */
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 24px;
-  width: calc(100% - 10rem); /* 5rem på hver side */
-  margin: 0rem 5rem; /* Flyt op med -2rem, behold 5rem margin til venstre og højre */
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  width: calc(100% - 3rem);
+  margin: -2rem 1.5rem 0;
 }
 
-@media (max-width: 1024px) {
+/* sm: 640px+ - Større mobil */
+@media (min-width: 640px) {
   .grid-container {
-    width: calc(100% - 8rem); /* 4rem på hver side */
-    margin: -2rem 4rem 0;
-    gap: 20px;
-  }
-}
-
-@media (max-width: 768px) {
-  .grid-container {
-    grid-template-columns: repeat(6, 1fr);
-    width: calc(100% - 5rem); /* 2.5rem på hver side */
-    margin: -2rem 2.5rem 0;
     gap: 16px;
+    width: calc(100% - 5rem);
+    margin: -2rem 2.5rem 0;
   }
 }
 
-@media (max-width: 480px) {
+/* md: 768px+ - Tablet - skift til 12 kolonner */
+@media (min-width: 768px) {
   .grid-container {
-    grid-template-columns: repeat(6, 1fr);
-    width: calc(100% - 3rem); /* 1.5rem på hver side */
-    margin: -2rem 1.5rem 0;
-    gap: 12px;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
+    width: calc(100% - 8rem);
+    margin: -2rem 4rem 0;
+  }
+}
+
+/* lg: 1024px+ - Laptop */
+@media (min-width: 1024px) {
+  .grid-container {
+    gap: 24px;
+    width: calc(100% - 10rem);
+    margin: 0rem 5rem;
   }
 }
 
@@ -1789,101 +1782,115 @@ html, body {
 }
 
 .header-section {
+  /* Mobil (default) */
   width: 100%;
-  height: 100vh;
+  height: auto;
+  min-height: 20vh;
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  /* top position is now set dynamically via :style binding */
   justify-content: flex-start;
-  z-index: 10; /* Højere end three-container */
+  z-index: 10;
 }
 
-/* Mobil: Juster header-sektionens højde */
-@media (max-width: 640px) {
+/* sm: 640px+ - Større skærme får fuld højde */
+@media (min-width: 640px) {
   .header-section {
-    height: auto; /* Ændr til auto eller en specifik højde som f.eks. 50vh */
-    min-height: 20vh; /* Minimum højde på mobil */
+    height: 100vh;
+    min-height: auto;
   }
 }
 
-/* MacBook 13" specifik styling - flyt header sektion op */
-@media (min-width: 1280px) and (max-width: 1440px) {
-  .header-section {
-    transform: translateY(-9rem); /* Flyt header sektionen op */
-  }
+/* ===========================================
+   FLUID RESPONSIVE SYSTEM
+   Bruger clamp() for glidende skalering
+   Kun breakpoints hvor layout ændres
+   =========================================== */
 
-  /* Mindre font-size og grid-column placering på alle 3 hero tekster i grid-container */
-  .hero-eyebrow {
-    font-size: 0.6rem !important; /* Eyebrow tekst */
-    grid-column: 1 / -1 !important; /* Ændre denne værdi for at justere placering (fx: 1 / 8, 2 / 9, osv.) */
+/* Hero typography - FLUID med clamp() */
+.hero-eyebrow {
+  /* Skalerer fra 0.6rem (små) til 1.1rem (store) */
+  font-size: clamp(0.6rem, 0.4rem + 0.25vw, 1.1rem) !important;
+}
+
+.hero-title {
+  /* Skalerer fra 2.25rem (mobil) til 8.5rem (27") */
+  font-size: clamp(2.25rem, 1rem + 4.5vw, 8.5rem) !important;
+  margin-bottom: clamp(0rem, 0.5vw, 1.5rem) !important;
+}
+
+.hero-subtitle {
+  /* Skalerer fra 0.95rem (mobil) til 1.5rem (store) */
+  font-size: clamp(0.95rem, 0.7rem + 0.4vw, 1.5rem) !important;
+}
+
+.scroll-indicator p {
+  font-size: clamp(0.65rem, 0.5rem + 0.2vw, 0.875rem) !important;
+}
+
+.scroll-indicator {
+  bottom: clamp(1rem, 2vw, 3rem) !important;
+}
+
+/* Content title - FLUID */
+.content-title {
+  font-size: clamp(1.5rem, 0.5rem + 3vw, 4.5rem) !important;
+}
+
+/* xl: 1280px+ - Layout ændringer (ikke font-sizes) */
+@media (min-width: 1280px) {
+  .hero-eyebrow,
+  .hero-subtitle {
+    grid-column: 1 / -1 !important;
   }
 
   .hero-title {
-    font-size: 3.5rem !important; /* Title tekst */
-    grid-column: 1 / 8 !important; /* Ændre denne værdi for at justere placering (fx: 1 / 9, 2 / 10, osv.) */
-    margin-bottom: 0 !important; /* Fjern margin-bottom */
+    grid-column: 1 / 8 !important;
   }
 
-  .hero-subtitle {
-    font-size: 0.8rem !important; /* Subtitle tekst */
-    grid-column: 1 / -1 !important; /* Ændre denne værdi for at justere placering (fx: 1 / 8, 2 / 9, osv.) */
-  }
-
-  /* Mindre font-size og flyt "scroll ned" teksten ned */
-  .scroll-indicator {
-    bottom: 1rem !important; /* Flyt ned fra standard bottom-6 (1.5rem) */
-  }
-  
-  .scroll-indicator p {
-    font-size: 0.65rem !important; /* Mindre end text-xs (0.75rem) */
-  }
-
-  /* Bredere grid-container på MacBook 13" */
-  /* Tilføj styling her hvis nødvendigt */
-
-  /* Mindre font-size på content-title */
   .content-title {
-    font-size: 2.8rem !important; /* Mindre end standard 4.5rem */
-    grid-column: 3 / 11 !important; /* Bredere - spænder over alle kolonner */
+    grid-column: 3 / 11 !important;
   }
 }
 
-/* Hero tekster styling - teksterne er nu direkte i grid-container */
+/* 2xl: 1920px+ - Kun for meget store skærme */
+@media (min-width: 1920px) {
+  .content-title {
+    grid-column: 2 / 12 !important;
+  }
+}
+
+/* Hero tekster styling - Mobile first */
 .hero-eyebrow,
 .hero-title,
 .hero-subtitle {
   color: #fff;
   position: relative;
-  z-index: 11; /* Højere end header-section og three-container */
-  grid-column: 1 / 9; /* Spænder over de første 8 kolonner */
+  z-index: 11;
+  grid-column: 1 / -1; /* Mobil: alle kolonner */
 }
 
 
 
 
-
-
-
-/* Responsive design for hero tekster */
-@media (max-width: 1024px) {
+/* Responsive design for hero tekster - Mobile first */
+/* md: 768px+ - Tablet med 12 kolonner */
+@media (min-width: 768px) {
   .hero-eyebrow,
   .hero-title,
   .hero-subtitle {
-    grid-column: 1 / 10; /* Spænder over 9 kolonner på mellemstore skærme */
+    grid-column: 1 / 10;
   }
 }
 
-@media (max-width: 768px) {
+/* lg: 1024px+ - Laptop */
+@media (min-width: 1024px) {
   .hero-eyebrow,
   .hero-title,
   .hero-subtitle {
-    grid-column: 1 / 13; /* Spænder over alle 12 kolonner på små skærme */
+    grid-column: 1 / 9;
   }
-}
-
-@media (max-width: 480px) {
 }
 
 .header-image {
@@ -1927,24 +1934,66 @@ html, body {
   grid-row: 1;
 }
 
+/* Content title - Mobile first */
 .content-title {
-  font-size: 4.5rem;
+  /* Mobil (default) */
+  font-size: 1.5rem;
   font-weight: 700;
-  line-height: 1.1;
- 
+  line-height: 1.3;
   color: #ffffff;
- 
-  text-align: center;
+  text-align: left;
   grid-row: 2;
-  grid-column: 2 / 12; /* Spænder over kolonner 1-5 */
+  grid-column: 1 / -1;
+  white-space: normal;
+  display: block;
+  opacity: 1;
+  transform: none;
 }
 
-/* MacBook Pro 14" specifik styling */
-@media (min-width: 1440px) and (max-width: 1700px) {
+/* sm: 640px+ */
+@media (min-width: 640px) {
   .content-title {
-    font-size: 4rem; /* Lidt mindre font-size */
+    font-size: 2rem;
+    text-align: center;
+    padding: 0 1rem;
+  }
+}
+
+/* md: 768px+ */
+@media (min-width: 768px) {
+  .content-title {
+    font-size: 2rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    grid-column: 1 / 7;
+  }
+}
+
+/* lg: 1024px+ */
+@media (min-width: 1024px) {
+  .content-title {
+    font-size: 3rem;
+    grid-column: 1 / 8;
+    text-align: center;
+    padding: 0;
+  }
+}
+
+/* xl: 1280px+ - styling håndteres allerede ovenfor */
+
+/* 2xl: 1536px+ */
+@media (min-width: 1536px) {
+  .content-title {
+    font-size: 4rem;
     grid-column: 1 / 13;
-     /* Bredere - spænder over alle 12 kolonner */
+  }
+}
+
+/* 3xl: 1920px+ - Desktop */
+@media (min-width: 1920px) {
+  .content-title {
+    font-size: 4.5rem;
+    grid-column: 2 / 12;
   }
 }
 
@@ -1980,24 +2029,25 @@ html, body {
   white-space: nowrap;
 }
 
-/* Forhindre ord i at blive brudt på mobil for feature boxes header */
-@media (max-width: 640px) {
-  .feature-boxes-header .char-span {
-    white-space: normal;
-  }
-  .feature-boxes-header {
-    word-break: normal;
-    hyphens: none;
-    overflow-wrap: break-word;
-  }
+/* Feature boxes header - Mobile first */
+.feature-boxes-header {
+  word-break: normal;
+  hyphens: none;
+  overflow-wrap: break-word;
 }
 
-/* Fix ekstra mellemrum på MacBook Pro 14" (ca. 1024px) */
-@media (min-width: 1024px) and (max-width: 1700px) {
-  .feature-boxes-header {
-    font-size: 2.5rem !important;
-  }
-  /* Reducer bredden af alle mellemrum-wrappers for at fikse ekstra mellemrum ved linjeskift */
+.feature-boxes-header .char-span {
+  white-space: normal;
+}
+
+/* Feature boxes header - FLUID */
+.feature-boxes-header {
+  /* Skalerer fra 1.5rem (mobil) til 4.5rem (27") */
+  font-size: clamp(1.5rem, 0.5rem + 2.5vw, 4.5rem) !important;
+}
+
+/* lg: 1024px+ - Fix ekstra mellemrum */
+@media (min-width: 1024px) {
   .feature-boxes-header .word-wrapper.space-wrapper {
     width: 0.25em;
     overflow: hidden;
@@ -2010,8 +2060,54 @@ html, body {
   display: contents;
 }
 
-/* Responsive design for content management section */
-@media (max-width: 1024px) {
+/* Content Management Section - Mobile first */
+.content-management-section {
+  /* Mobil (default) */
+  padding: 40px 0 0;
+}
+
+.content-management-section .grid-container {
+  margin-top: -1.5rem;
+}
+
+.content-eyebrow {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.content-management-section .feature-boxes-container {
+  margin-top: 2rem;
+}
+
+/* sm: 640px+ */
+@media (min-width: 640px) {
+  .content-management-section {
+    padding: 60px 0 0;
+    margin-top: -160rem;
+  }
+
+  .content-management-section .grid-container {
+    margin-top: 0;
+  }
+
+  .content-management-section .feature-boxes-container {
+    margin-top: 3rem;
+  }
+}
+
+/* md: 768px+ */
+@media (min-width: 768px) {
+  .content-management-section {
+    margin-top: 0;
+  }
+
+  .content-eyebrow {
+    grid-column: 1 / 7;
+  }
+}
+
+/* lg: 1024px+ */
+@media (min-width: 1024px) {
   .content-management-section {
     padding: 80px 0 0;
   }
@@ -2023,132 +2119,28 @@ html, body {
   .content-eyebrow {
     grid-column: 1 / 8;
   }
-  
-  .content-title {
-    font-size: 3rem;
-    grid-column: 1 / 8; /* Spænder over kolonner 1-7 */
-  }
 }
 
-@media (max-width: 768px) {
+/* xl: 1280px+ */
+@media (min-width: 1280px) {
   .content-management-section {
-    padding: 60px 0 0;
-    margin-top: -160rem; /* Rykker hele sektionen op på mobil */
+    padding: 120px 0 0;
   }
 
   .content-management-section .grid-container {
-    margin-top: -0rem;
-  }
-
-  .content-eyebrow {
-    grid-column: 1 / 7; /* Spænder over alle 6 kolonner */
-  }
-
-  .content-title {
-    /* Typography */
-    font-size: 2rem;
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    
-    /* Colors */
-    color: #ffffff;
-    
-    /* Layout */
-    grid-column: 1 / 7; /* Spænder over alle 6 kolonner */
-    grid-row: 2; /* Placer i row 2 på mobil */
-    text-align: center;
-    
-    /* Spacing */
-    padding: 0 1rem;
-    margin: 0;
-    
-    /* Text */
-    white-space: normal;
-    text-transform: none;
-    
-    /* Display */
-    display: block;
-    opacity: 1;
-    
-    /* Transform */
-    transform: none;
-  }
-
-  .content-management-section .feature-boxes-container {
-    margin-top: 3rem;
+    margin-top: -10rem;
   }
 }
 
-@media (max-width: 480px) {
-  .content-management-section {
-    padding: 40px 0 0;
-  }
-
-  .content-management-section .grid-container {
-    margin-top: -1.5rem;
-  }
-
-  .content-title {
-    /* Typography */
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1.3;
-    color: #ffffff;
-    grid-column: 1 / 7; /* Spænder over alle 6 kolonner */
-    grid-row: 2; /* Placer i row 2 på mobil */
-    padding: 0 0rem;
-    text-align: left;
-    white-space: normal;
-    text-transform: none;
-    display: block;
-    opacity: 1;
-    transform: none;
-  }
-
-  .content-management-section .feature-boxes-container {
-    margin-top: 2rem;
-  }
+/* Feature boxes eyebrow - FLUID */
+.feature-boxes-section p:first-child {
+  font-size: clamp(0.6rem, 0.4rem + 0.25vw, 1.2rem) !important;
 }
 
-/* MacBook 13" - eyebrow tekst og overskrift i feature boxes section */
-@media (min-width: 1280px) and (max-width: 1440px) {
-  .feature-boxes-section p:first-child {
-    font-size: 0.6rem !important;
-  }
-  .feature-boxes-header {
-    font-size: 2rem !important;
-  }
-}
-
-/* 27" skærmstørrelse (ca. 2560px bred) */
-@media (min-width: 2500px) and (max-width: 2700px) {
-  .hero-eyebrow {
-    font-size: 1.1rem !important; /* Gør hero eyebrow større - justér denne værdi efter behov */
-  }
-  .hero-subtitle {
-    font-size: 1.5rem !important; /* Gør hero subtitle større - justér denne værdi efter behov */
-  }
-  .feature-boxes-section p:first-child {
-    font-size: 1.2rem !important; /* Gør eyebrow større - justér denne værdi efter behov */
-  }
-  .feature-boxes-header {
-    font-size: 4.5rem !important; /* Gør overskrift større - justér denne værdi efter behov */
-  }
-}
-
-/* 27" skærme (2560px og opefter) - gør hero title større og ryk teksterne ned */
+/* 4xl: 2560px+ - Store skærme - kun layout justeringer */
 @media (min-width: 2560px) {
-  .header-section {
-    padding-top: 14rem; /* Ryk alle hero tekster ned */
-  }
-  
-  .hero-title {
-    font-size: 8.5rem !important; /* Større end standard xl:text-[6rem] */
-  }
-  
   .content-title {
-    grid-column: 3 / 11; /* Juster kolonne placering for 27" skærme */
+    grid-column: 3 / 11;
   }
 }
 

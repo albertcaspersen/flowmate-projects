@@ -42,51 +42,57 @@ const loadedImages = ref({});
 const scrollProgress = ref(0);
 let scrollTriggerInstance = null;
 
-// Beregn stil for hvert slide baseret på scroll position
+// Beregn stil for hvert slide baseret på scroll position (uden clipPath)
 const getSlideStyle = (index) => {
   const totalImages = props.images.length;
   if (totalImages === 0) {
-    return { opacity: 0, clipPath: 'inset(100% 0% 0% 0%)' };
+    return { opacity: 0 };
   }
   
   const progress = scrollProgress.value;
-  
-  // Beregn hvilket billede der skal være aktivt
   const exactIndex = progress * (totalImages - 1);
   const currentImageIndex = Math.floor(exactIndex);
   const transitionProgress = exactIndex - currentImageIndex; // 0-1 mellem to billeder
-  
   const distance = index - currentImageIndex;
 
-  // Beregn clip-path baseret på scroll position
-  // Beholder alle tidligere billeder fuldt synlige, så baggrunden ikke blottes ved hurtig scroll
-  let clipPath = 'inset(0% 0% 100% 0%)'; // Standard: skjult fra bunden
-  // Z-index: næste billede skal være højere end det aktuelle når det bliver afsløret
-  let zIndex = totalImages - Math.abs(distance);
-  if (distance === 1 && transitionProgress > 0) {
-    // Næste billede skal være over det aktuelle når det bliver afsløret
-    zIndex = totalImages + 1;
-  }
-  
-  if (distance <= 0) {
-    // Aktuelt og tidligere billeder - forbliver fuldt synlige (beskytter mod at baggrund blottes)
-    clipPath = 'inset(0% 0% 0% 0%)';
+  // Basis værdier
+  let opacity = 0;
+  let scale = 0.9;
+  let translateY = 40; // vh baseret offset
+  let zIndex = totalImages - index;
+
+  // Glat easing
+  const eased = -(Math.cos(Math.PI * transitionProgress) - 1) / 2; // easeInOutSine
+
+  if (distance === 0) {
+    // Aktivt billede: glid let op og zoom en smule ind
+    opacity = 1 - (eased * 0.4);
+    scale = 1 - eased * 0.05;
+    translateY = -eased * 10;
+    zIndex = totalImages + 2;
   } else if (distance === 1) {
-    // Næste billede - bliver afsløret fra bunden med easing
-    // Brug en blødere easeInOutSine kurve
-    const easedProgress = -(Math.cos(Math.PI * transitionProgress) - 1) / 2;
-    const bottomInset = 100 - (easedProgress * 100);
-    clipPath = `inset(0% 0% ${bottomInset}% 0%)`;
-  } else {
-    // Kommende billeder længere fremme - skjul dem
-    clipPath = 'inset(0% 0% 100% 0%)';
+    // Næste billede fade/scale ind nedefra
+    opacity = eased;
+    scale = 0.92 + eased * 0.08;
+    translateY = (1 - eased) * 30;
+    zIndex = totalImages + 1;
+  } else if (distance < 0) {
+    // Tidligere billeder: dæmp en smule
+    opacity = 0.35;
+    scale = 0.95;
+    translateY = -10;
+  } else if (distance > 1) {
+    // Kommende billeder længere fremme
+    opacity = 0;
+    scale = 0.9;
+    translateY = 50;
   }
   
   return {
-    clipPath: clipPath,
-    opacity: 1, // Altid fuldt synligt når det ikke er clipped
+    opacity,
+    transform: `translate3d(0, ${translateY}vh, 0) scale(${scale})`,
     zIndex: Math.max(0, Math.floor(zIndex)),
-    willChange: 'clip-path'
+    willChange: 'transform, opacity'
   };
 };
 
@@ -111,17 +117,14 @@ onMounted(() => {
   // Vent lidt så DOM er klar
   nextTick(() => {
     // Opret ScrollTrigger for scroll-baseret animation
-    // Beregn end baseret på antal billeder - meget mere scroll per billede
-    const scrollPerImage = 900; // viewport højder per billede (meget mere scroll)
-    // Ekstra pinned tid efter sidste billede (positiv værdi = længere pin)
-    const endPadding = -900;
-    const totalScrollHeight = scrollPerImage * props.images.length + endPadding;
+    const scrollPerImage = 900; // viewport højder per billede
+    const totalScrollHeight = scrollPerImage * props.images.length;
     
     scrollTriggerInstance = ScrollTrigger.create({
       trigger: stackContainer.value,
       start: 'top top',
-      end: `+=${totalScrollHeight}vh`, // Mere scroll per billede
-      scrub: 0.5, // Lavere værdi = mere smooth, men lidt mere lag
+      end: `+=${totalScrollHeight}vh`,
+      scrub: 0.5,
       onUpdate: (self) => {
         scrollProgress.value = self.progress;
       }
@@ -177,7 +180,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: clip-path 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.25s ease-out;
 }
 
 .image-content {
@@ -209,7 +212,7 @@ onUnmounted(() => {
 .image-slide,
 .image-content,
 .slide-image {
-  will-change: clip-path;
+  will-change: transform, opacity;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform: translateZ(0);

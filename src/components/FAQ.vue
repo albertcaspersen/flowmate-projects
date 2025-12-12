@@ -1,13 +1,13 @@
 <template>
-  <section class="faq-section w-full min-h-screen relative bg-transparent pt-0 pb-24 flex items-center lg:pb-20 md:pb-16 sm:pb-12 -mt-[5rem] lg:-mt-[5rem] md:-mt-8 sm:-mt-6 max-[480px]:-mt-6">
+  <section class="faq-section w-full min-h-screen relative bg-transparent pt-0 pb-12 sm:pb-12 md:pb-16 lg:pb-20 xl:pb-24 flex items-center -mt-6 sm:-mt-6 md:-mt-8 lg:-mt-[5rem]">
     <div class="grid-container">
       <!-- Row 1: FAQ Eyebrow -->
-      <p class="col-start-1 col-span-5 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 max-sm:mb-6 row-[1]">
+      <p class="col-start-1 col-span-6 md:col-span-3 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6 sm:mb-0 row-[1]">
         {{ t('faq.eyebrow') }}
       </p>
       
       <!-- Row 2: FAQ Header -->
-      <h2 ref="faqHeader" class="col-start-1 col-span-5 lg:col-start-1 lg:col-span-5 md:col-start-1 md:col-span-12 text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-8 text-white row-[2]">
+      <h2 ref="faqHeader" class="col-start-1 col-span-6 md:col-span-3 text-[1.5rem] sm:text-[2rem] md:text-[2.5rem] lg:text-[3rem] xl:text-[4.5rem] font-bold leading-[1.2] mb-8 text-white row-[2]">
         <template v-for="(word, wordIndex) in faqHeaderWords" :key="wordIndex">
           <br v-if="word.isLineBreak" />
           <span v-else class="word-wrapper" :data-word-index="wordIndex">
@@ -199,114 +199,99 @@ const toggleItem = (index) => {
   transition: background-color 500ms ease-out, transform 500ms ease-out;
 }
 
+/* Row 2: First 3 squares - kolonner 7-13 */
 .faq-square:nth-child(3) {
   grid-row: 2;
-  grid-column: 4 / 7;
+  grid-column: 7 / 9;
 }
 
 .faq-square:nth-child(4) {
   grid-row: 2;
-  grid-column: 7 / 10;
-}
-
-.faq-square:nth-child(5) {
-  grid-row: 3;
-  grid-column: 4 / 7;
-}
-
-.faq-square:nth-child(6) {
-  grid-row: 3;
-  grid-column: 7 / 10;
-}
-
-.faq-square:nth-child(7) {
-  grid-row: 3;
-  grid-column: 10 / 13;
+  grid-column: 9 / 11;
 }
 
 .faq-square:nth-child(8) {
   grid-row: 2;
-  grid-column: 10 / 13;
+  grid-column: 11 / 13;
 }
 
-@media (max-width: 768px) {
-  .faq-square:nth-child(3),
-  .faq-square:nth-child(4),
-  .faq-square:nth-child(5),
-  .faq-square:nth-child(6),
-  .faq-square:nth-child(7),
-  .faq-square:nth-child(8) {
-    grid-column: 1 / -1;
-  }
-  
-  .faq-square:nth-child(3) {
-    grid-row: 3;
-  }
-  
-  .faq-square:nth-child(4) {
-    grid-row: 4;
-  }
-  
-  .faq-square:nth-child(5) {
-    grid-row: 5;
-  }
-  
-  .faq-square:nth-child(6) {
-    grid-row: 6;
-  }
-  
-  .faq-square:nth-child(7) {
-    grid-row: 7;
-  }
-  
-  .faq-square:nth-child(8) {
-    grid-row: 8;
-  }
+/* Row 3: Next 3 squares - kolonner 7-13 */
+.faq-square:nth-child(5) {
+  grid-row: 3;
+  grid-column: 7 / 9;
 }
 
-/* MacBook 13" - eyebrow tekst, overskrift og FAQ kort overskrifter */
-@media (min-width: 1280px) and (max-width: 1440px) {
-  .faq-section p:first-child {
-    font-size: 0.6rem !important;
-  }
-  .faq-section h2 {
-    font-size: 2rem !important;
-  }
-  .faq-square h3 {
-    font-size: 0.6rem !important;
-  }
-  .faq-square {
-    height: 12.5rem !important;
-  }
+.faq-square:nth-child(6) {
+  grid-row: 3;
+  grid-column: 9 / 11;
 }
 
-/* Reducer font-størrelse på overskrifter og tekst i FAQ kort til MacBook Pro 14" */
-@media (min-width: 1445px) and (max-width: 1700px) {
-  .faq-section h2 {
-    font-size: 2.5rem;
-  }
-  .faq-square h3 {
-    font-size: 0.9rem;
-  }
-  .faq-square p {
-    font-size: 0.8rem;
-  }
+.faq-square:nth-child(7) {
+  grid-row: 3;
+  grid-column: 11 / 13;
 }
 
-/* 27" skærmstørrelse (ca. 2560px bred) - gør eyebrow og overskrift større */
-@media (min-width: 2500px) and (max-width: 2700px) {
-  .faq-section p:first-child {
-    font-size: 1.2rem !important; /* Matcher features eyebrow - justér denne værdi efter behov */
-  }
-  .faq-section h2 {
-    font-size: 4.5rem !important; /* Matcher andre overskrifter - justér denne værdi efter behov */
-  }
-  .faq-square h3 {
-    font-size: 1.7rem !important; /* Gør FAQ kort overskrifter større - justér denne værdi efter behov */
-  }
-  .faq-toggle-icon {
-    font-size: 3rem !important; /* Gør + tegnet lidt større på 27" skærme */
-  }
+/* Mobil default: alle squares i fuld bredde, stables vertikalt */
+.faq-square:nth-child(3),
+.faq-square:nth-child(4),
+.faq-square:nth-child(5),
+.faq-square:nth-child(6),
+.faq-square:nth-child(7),
+.faq-square:nth-child(8) {
+  grid-column: 1 / -1;
+}
+
+.faq-square:nth-child(3) { grid-row: 3; }
+.faq-square:nth-child(4) { grid-row: 4; }
+.faq-square:nth-child(5) { grid-row: 5; }
+.faq-square:nth-child(6) { grid-row: 6; }
+.faq-square:nth-child(7) { grid-row: 7; }
+.faq-square:nth-child(8) { grid-row: 8; }
+
+/* md: 768px+ - Desktop layout: 3 kort per række, 3 kolonner brede */
+@media (min-width: 768px) {
+  /* Row 2: Første 3 kort */
+  .faq-square:nth-child(3) { grid-row: 2; grid-column: 4 / 7; }
+  .faq-square:nth-child(4) { grid-row: 2; grid-column: 7 / 10; }
+  .faq-square:nth-child(8) { grid-row: 2; grid-column: 10 / 13; }
+  /* Row 3: Næste 3 kort */
+  .faq-square:nth-child(5) { grid-row: 3; grid-column: 4 / 7; }
+  .faq-square:nth-child(6) { grid-row: 3; grid-column: 7 / 10; }
+  .faq-square:nth-child(7) { grid-row: 3; grid-column: 10 / 13; }
+}
+
+/* ===========================================
+   FLUID RESPONSIVE - FAQ
+   =========================================== */
+
+/* Eyebrow - FLUID */
+.faq-section p:first-child {
+  font-size: clamp(0.6rem, 0.4rem + 0.25vw, 1.2rem) !important;
+}
+
+/* H2 - FLUID */
+.faq-section h2 {
+  font-size: clamp(1.5rem, 0.5rem + 2.5vw, 4.5rem) !important;
+}
+
+/* FAQ card title - FLUID */
+.faq-square h3 {
+  font-size: clamp(0.6rem, 0.3rem + 0.6vw, 1.7rem) !important;
+}
+
+/* FAQ card height - FLUID */
+.faq-square {
+  height: clamp(10rem, 8rem + 5vw, 20rem) !important;
+}
+
+/* FAQ card description - FLUID */
+.faq-square p {
+  font-size: clamp(0.7rem, 0.5rem + 0.2vw, 1rem);
+}
+
+/* Toggle icon - FLUID */
+.faq-toggle-icon {
+  font-size: clamp(1.5rem, 1rem + 1vw, 3rem) !important;
 }
 </style>
 

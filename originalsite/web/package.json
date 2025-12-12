@@ -1,0 +1,40 @@
+{
+  "name": "checkmate-nuxt-3-template",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate",
+    "start": "nuxi start",
+    "typecheck": "nuxi typecheck",
+    "prepare": "nuxi prepare"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": ">=20.14.0"
+  },
+  "dependencies": {
+    "@gtm-support/vue-gtm": "^3.1.0",
+    "@intlify/vue-i18n-bridge": "^1.1.0",
+    "@nuxtjs/i18n": "^10.0.0-beta.2",
+    "@nuxtjs/sitemap": "^6.0.1",
+    "gsap": "file:gsap-bonus.tgz",
+    "mysql2": "^3.11.0",
+    "pinia": "^2.2.0",
+    "swiper": "^11.2.6",
+    "vue": "^3.4"
+  },
+  "optionalDependencies": {
+    "md5": "^2.3.0",
+    "meilisearch": "^0.42.0",
+    "redis": "^4.7.0"
+  },
+  "devDependencies": {
+    "@checkmatecph/flowmate-nuxt-integration": "1.0.0",
+    "@nuxtjs/tailwindcss": "^6.12.0",
+    "nuxt": "^3.14.0",
+    "sass": "^1.77.0",
+    "tailwindcss-animated": "^1.1.2",
+    "vue-router": "^4.4.0"
+  }
+}

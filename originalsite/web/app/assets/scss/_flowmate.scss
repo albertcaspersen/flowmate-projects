@@ -1,0 +1,6 @@
+.flex-section {
+  &.fm-active {
+    // Apply border bottom and top
+    @apply border-t-2 border-b-2 border-dashed border-primary;
+  }
+}

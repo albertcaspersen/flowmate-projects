@@ -1,0 +1,41 @@
+.cm-contained {
+    @apply container;
+}
+.default-grid {
+    @apply grid grid-cols-12 gap-4;
+
+    &.half-grid {
+        @apply grid-cols-6;
+    }
+}
+
+$padding-list:('pt', 'pl', 'pr', 'pb');
+$padding-list-y:('pt', 'pb');
+$class-list:(
+        'none': 0,
+        'rem1': 4,
+        'rem2': 8,
+        'rem4': 16,
+        'rem6': 24,
+        'rem8': 32,
+        'rem10': 40,
+        'rem12': 48,
+        'rem16': 64,
+        'rem20': 80
+);
+
+@each $key, $val in $class-list{
+    @each $pkey in $padding-list{
+        .cm-#{$pkey}-#{$key} {
+            @apply md:#{$pkey}-#{$val};
+        }
+    }
+}
+
+@each $key, $val in $class-list{
+    @each $pkey in $padding-list-y{
+        .cm-#{$pkey}-#{$key} {
+            @apply max-md:#{$pkey}-12;
+        }
+    }
+}

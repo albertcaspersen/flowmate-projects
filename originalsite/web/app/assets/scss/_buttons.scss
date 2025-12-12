@@ -1,0 +1,81 @@
+.btn {
+  @apply flex items-center justify-between border border-transparent duration-300 transition-all rounded-[10px] appearance-none px-6 py-4;
+  width: fit-content; /* Ensure the button only takes up as much space as needed */
+  
+  /* Button text styling */
+  .btn-text {
+    @apply transition-all duration-300;
+  }
+  
+  /* Button icon styling */
+  .btn-icon {
+    @apply w-0 overflow-hidden transition-all duration-300 ml-0 flex items-center;
+    
+    svg {
+      @apply w-5 h-5 min-w-[20px];
+    }
+  }
+  
+  /* Hover effects for all buttons - show the icon by expanding its width */
+  &:hover {
+    @apply px-6;
+    
+    .btn-icon {
+      @apply w-5 ml-3;
+    }
+  }
+  
+  /* Type specific styling */
+  
+  /* SOLID - primary-green with dark green text */
+  &.btn-solid {
+    @apply bg-primary-green text-dark-green;
+    
+    /* On hover: become transparent with white border */
+    &:hover {
+      @apply bg-transparent border-white text-white;
+    }
+  }
+  
+  /* HOLLOW - transparent with white border */
+  &.btn-hollow {
+    @apply bg-transparent border-white text-white;
+    
+    /* On hover: just animate in the plus icon */
+  }
+  
+  /* TRANSPARENT - no background or border */
+  &.btn-transparent {
+    @apply bg-transparent text-current p-0 border-0 px-0;
+    
+    /* On hover: reduce opacity slightly and animate in plus */
+    &:hover {
+      @apply opacity-80 px-0;
+      
+      .btn-icon {
+        @apply ml-1 w-4;
+      }
+    }
+    
+    .btn-text {
+      @apply border-b border-b-transparent hover:border-b-current;
+    }
+  }
+}
+
+/* For sections with white backgrounds */
+.has-white-bg {
+  .btn {
+    &.btn-solid {
+      @apply text-dark-green;
+      
+      &:hover {
+        @apply border-dark-green text-dark-green;
+      }
+    }
+    
+    &.btn-hollow {
+      @apply border-dark-green text-dark-green;
+    }
+  }
+}

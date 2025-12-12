@@ -1,0 +1,44 @@
+#### STAGE 1: Build ###
+FROM registry.digitalocean.com/checkmate-registry/checkmate-nuxt-3-template:latest as build
+
+ARG CM_NPM_TOKEN
+
+USER root
+
+WORKDIR /app
+
+# set app host for nuxt
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV NITRO_PORT=3000
+ENV FLOWMATE_ENABLED=true
+
+
+COPY ./app /app
+COPY ./app/nuxt.config.flowmate.js /app/nuxt.config.js
+COPY ./app/.env.flowmate /app/.env
+
+# Create npmrc os we can install the private packages.
+RUN echo "//registry.npmjs.org/:_authToken=${CM_NPM_TOKEN}" > /app/.npmrc
+
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache npm git openssh
+
+# RUN npm install @checkmatecph/flowmate-editor@latest --verbose && npm cache clean --force && npm run build
+
+RUN npm install --verbose && npm cache clean --force && npm run build
+
+RUN chown -R root:root /app
+
+EXPOSE 80 8080 3000
+#EXPOSE 3000
+
+# Start npm.
+CMD ["npm", "start"]
+
+# Start as nginx (does not work)
+# CMD ["nginx", "-g", "daemon off;"]
+
+# Supervisor should work - but at a slight cost in resources/ram usage
+# CMD ["/usr/bin/supervisord"]

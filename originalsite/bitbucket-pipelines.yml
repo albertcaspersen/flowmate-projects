@@ -1,0 +1,58 @@
+# This is a sample build configuration for JavaScript.
+# Check our guides at https://confluence.atlassian.com/x/14UWN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: node:22
+
+pipelines:
+  branches:
+
+    master:
+      - step:
+          name: Build
+          deployment: production
+          script:
+            #- printenv | sed 's/\(^[^=]*\)=\(.*\)/\1="\2"/' > .env
+            - sh ./pipeline.sh
+            # - cat .env
+            - docker login -u $DO_REGISTRY_TOKEN -p $DO_REGISTRY_TOKEN $DO_REGISTRY_URL
+            - export IMAGE_NAME=$DO_REGISTRY_NAME/$BITBUCKET_REPO_SLUG:$(echo $BITBUCKET_COMMIT | head -c7)
+            - export IMAGE_NAME_LATEST=$DO_REGISTRY_NAME/$BITBUCKET_REPO_SLUG:latest
+            # - echo $IMAGE_NAME
+            - docker build --build-arg BITBUCKET_COMMIT=$BITBUCKET_COMMIT --build-arg BITBUCKET_BUILD_NUMBER=$BITBUCKET_BUILD_NUMBER --build-arg CM_NPM_TOKEN=$CM_NPM_TOKEN -t $DO_REGISTRY_URL/$IMAGE_NAME -t $DO_REGISTRY_URL/$IMAGE_NAME_LATEST .
+            - docker push $DO_REGISTRY_URL/$IMAGE_NAME
+            - docker push $DO_REGISTRY_URL/$IMAGE_NAME_LATEST
+          artifacts:
+            - .env
+          services:
+            - docker
+#      - step:
+#          name: Flowmate build
+#          #deployment: production
+#          script:
+#            #- printenv | sed 's/\(^[^=]*\)=\(.*\)/\1="\2"/' > .env
+#            - sh ./pipeline.sh
+#            # - cat .env
+#            - docker login -u $DO_REGISTRY_TOKEN -p $DO_REGISTRY_TOKEN $DO_REGISTRY_URL
+#            - export IMAGE_NAME=$DO_REGISTRY_NAME/$BITBUCKET_REPO_SLUG:flowmate
+#            - docker build --build-arg CM_NPM_TOKEN=$CM_NPM_TOKEN -f .docker/flowmate/Dockerfile -t $DO_REGISTRY_URL/$IMAGE_NAME .
+#            - docker push $DO_REGISTRY_URL/$IMAGE_NAME
+#          artifacts:
+#            - .env
+#          services:
+#            - docker
+
+      #- step:
+      #   name: Notification to Slack
+      #   script:
+      #     - pipe: atlassian/slack-notify:0.3.6
+      #       variables:
+      #         WEBHOOK_URL: $SlackWebhookUrl
+      #         MESSAGE: '$BITBUCKET_REPO_SLUG: Deployment to App platform - $BITBUCKET_COMMIT'
+
+
+definitions:
+  services:
+    docker:
+      memory: 2048

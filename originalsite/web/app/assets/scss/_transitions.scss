@@ -1,0 +1,29 @@
+/* Page transition */
+.page-enter-from{
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.2s;
+}
+.page-enter,
+.page-leave-to {
+  opacity: 0;
+}
+
+/* Post transition */
+.post-enter-from{
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+.post-enter-active,
+.post-leave-active {
+  transition: all 0.2s;
+}
+.post-enter,
+.post-leave-to {
+  opacity: 0;
+}

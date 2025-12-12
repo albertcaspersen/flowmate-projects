@@ -1,9 +1,9 @@
 <template>
-  <nav class="fixed top-0 left-0 right-0 z-[1000] py-8 max-[1024px]:py-6 max-[768px]:py-3 max-[768px]:mt-4">
-    <div class="grid grid-cols-12 max-[768px]:grid-cols-6 gap-6 max-[1024px]:gap-5 max-[768px]:gap-4 max-[480px]:gap-3 w-[calc(100%-10rem)] max-[1024px]:w-[calc(100%-8rem)] max-[768px]:w-[calc(100%-5rem)] max-[480px]:w-[calc(100%-3rem)] mx-[5rem] max-[1024px]:mx-[4rem] max-[768px]:mx-[2.5rem] max-[480px]:mx-[1.5rem] items-center">
+  <nav class="fixed top-0 left-0 right-0 z-[1000] py-3 mt-4 md:py-6 md:mt-0 lg:py-8">
+    <div class="grid grid-cols-6 md:grid-cols-12 gap-3 sm:gap-4 md:gap-5 lg:gap-6 w-[calc(100%-3rem)] sm:w-[calc(100%-5rem)] md:w-[calc(100%-8rem)] lg:w-[calc(100%-10rem)] mx-6 sm:mx-10 md:mx-16 lg:mx-20 items-center">
       <!-- Logo til venstre -->
-      <div class="col-span-6 max-[768px]:col-span-2 macbook14:col-span-5 flex items-center">
-        <div class="h-[clamp(2.5rem,2.75rem,3rem)] max-[768px]:h-7 text-white flex items-center justify-start">
+      <div class="col-span-2 md:col-span-6 2xl:col-span-5 flex items-center">
+        <div class="h-7 md:h-[clamp(2.5rem,2.75rem,3rem)] xl:h-8 4xl:h-[clamp(3.5rem,4rem,4.5rem)] text-white flex items-center justify-start">
           <svg width="240" height="44" viewBox="0 0 240 44" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-full w-auto">
             <defs>
               <clipPath id="clip0_2070_751">
@@ -33,11 +33,10 @@
       </div>
 
       <!-- Knapper til højre - hver med sin grid position -->
-      <button class="nav-button-responsive col-span-1 col-start-11 max-[768px]:col-span-1 max-[768px]:col-start-5 macbook14:col-start-11 macbook14:col-span-1 bg-[#00291A] text-white border-none rounded-lg max-[768px]:rounded-md font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[#006644] focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,102,68,0.5)]">
-        <span class="max-[768px]:hidden">{{ t('nav.getStarted') }}</span>
-        <span class="hidden max-[768px]:inline">{{ t('nav.tryNow') }}</span>
+      <button class="col-span-1 col-start-5 md:col-start-11 flex items-center justify-center w-full bg-[#00291A] text-white border-none rounded-md md:rounded-lg font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[#006644] focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,102,68,0.5)] text-[0.6rem] sm:text-[0.65rem] md:text-[0.7rem] lg:text-[0.75rem] xl:text-[0.7rem] 3xl:text-[0.85rem] 4xl:text-base py-2 px-2.5 sm:px-3 md:px-3.5 lg:px-4 xl:py-1.5 xl:px-3.5 3xl:py-2.5 3xl:px-5 4xl:py-3 4xl:px-6 min-h-8 sm:min-h-9 md:min-h-10 lg:min-h-10 xl:min-h-8 3xl:min-h-11 4xl:min-h-14 whitespace-nowrap overflow-hidden text-ellipsis">
+        {{ t('nav.getStarted') }}
       </button>
-      <button @click="toggleLanguage" class="nav-button-responsive col-span-1 col-start-12 max-[768px]:col-span-1 max-[768px]:col-start-6 macbook14:col-start-12 macbook14:col-span-1 bg-[#00291A] text-white rounded-lg max-[768px]:rounded-md max-[768px]:text-center font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[#006644] focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,102,68,0.5)]">{{ t('nav.english') }}</button>
+      <button @click="toggleLanguage" class="col-span-1 col-start-6 md:col-start-12 flex items-center justify-center w-full bg-[#00291A] text-white rounded-md md:rounded-lg font-medium cursor-pointer transition-all duration-200 ease-in-out relative hover:bg-[#006644] focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,102,68,0.5)] text-[0.6rem] sm:text-[0.65rem] md:text-[0.7rem] lg:text-[0.75rem] xl:text-[0.7rem] 3xl:text-[0.85rem] 4xl:text-base py-2 px-2.5 sm:px-3 md:px-3.5 lg:px-4 xl:py-1.5 xl:px-3.5 3xl:py-2.5 3xl:px-5 4xl:py-3 4xl:px-6 min-h-8 sm:min-h-9 md:min-h-10 lg:min-h-10 xl:min-h-8 3xl:min-h-11 4xl:min-h-14 whitespace-nowrap overflow-hidden text-ellipsis">{{ t('nav.english') }}</button>
     </div>
   </nav>
 </template>
@@ -54,127 +53,9 @@ const toggleLanguage = () => {
 </script>
 
 <style scoped>
-/* Responsive tekststørrelse for knapperne */
-.nav-button-responsive {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 100%;
-  white-space: nowrap !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
-  word-break: keep-all;
-  hyphens: none;
-  box-sizing: border-box;
-}
-
-.nav-button-responsive span {
+/* Base button styles that aren't responsive */
+button span {
   display: inline-block;
   white-space: nowrap;
 }
-
-/* Sikre at spans kan skjules korrekt med Tailwind classes */
-.nav-button-responsive span.hidden {
-  display: none !important;
-}
-
-.nav-button-responsive span.max-\[768px\]\:hidden {
-  display: inline-block;
-}
-
-@media (max-width: 768px) {
-  .nav-button-responsive span.max-\[768px\]\:hidden {
-    display: none !important;
-  }
-  
-  .nav-button-responsive span.max-\[768px\]\:inline {
-    display: inline-block !important;
-  }
-}
-
-/* Desktop større skærme */
-@media (min-width: 1701px) {
-  .nav-button-responsive {
-    font-size: 0.85rem;
-    padding: 0.625rem 1.25rem;
-    min-height: 2.75rem;
-  }
-}
-
-/* MacBook Pro 14" og lignende (1024px - 1700px) */
-@media (min-width: 1024px) and (max-width: 1700px) {
-  .nav-button-responsive {
-    font-size: 0.75rem;
-    padding: 0.5rem 1rem;
-    min-height: 2.5rem;
-  }
-}
-
-/* Tablet størrelse (769px - 1023px) */
-@media (min-width: 769px) and (max-width: 1023px) {
-  .nav-button-responsive {
-    font-size: 0.7rem;
-    padding: 0.5rem 0.875rem;
-    min-height: 2.5rem;
-  }
-}
-
-/* Mobil størrelse (481px - 768px) */
-@media (min-width: 481px) and (max-width: 768px) {
-  .nav-button-responsive {
-    font-size: 0.65rem;
-    padding: 0.5rem 0.75rem;
-    min-height: 2.25rem;
-  }
-}
-
-/* Meget små skærme (op til 480px) */
-@media (max-width: 480px) {
-  .nav-button-responsive {
-    font-size: 0.6rem;
-    padding: 0.5rem 0.625rem;
-    min-height: 2rem;
-  }
-}
-
-/* MacBook 13" specifik styling - gør logo mindre */
-@media (min-width: 1280px) and (max-width: 1440px) {
-  nav .col-span-6 > div {
-    height: 2rem; /* Mindre end standard clamp(2.5rem,2.75rem,3rem) */
-  }
-  
-  nav .col-span-6 svg {
-    height: 2rem;
-    width: auto;
-  }
-  
-  /* Gør knapper mindre høje */
-  .nav-button-responsive {
-    min-height: 2rem; /* Mindre end standard 2.5rem */
-    padding: 0.4rem 0.9rem; /* Mindre padding */
-    font-size: 0.7rem; /* Mindre font-size */
-  }
-}
-
-/* 27" skærme (2560px og opefter) - gør logo større */
-@media (min-width: 2560px) {
-  nav .col-span-6 > div {
-    height: clamp(3.5rem, 4rem, 4.5rem); /* Større end standard */
-  }
-  
-  nav .col-span-6 svg {
-    height: clamp(3.5rem, 4rem, 4.5rem);
-    width: auto;
-  }
-  
-  /* Gør knapper større */
-  .nav-button-responsive {
-    font-size: 1rem;
-    padding: 0.75rem 1.5rem;
-    min-height: 3.5rem;
-  }
-}
 </style>
-

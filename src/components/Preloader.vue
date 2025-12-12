@@ -134,15 +134,26 @@ defineExpose({
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3rem;
+  gap: clamp(1.5rem, 3vw, 4rem);
 }
 
 .logo-full {
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* ===========================================
+   FLUID RESPONSIVE - Preloader
+   =========================================== */
+
+/* Logo - FLUID */
+.logo-full svg {
+  width: clamp(140px, 30vw, 320px);
+  height: auto;
+}
+
+/* Progress bar - FLUID */
 .progress-bar {
-  width: 240px;
+  width: clamp(140px, 30vw, 320px);
   height: 1px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 1px;
@@ -156,28 +167,6 @@ defineExpose({
   transform-origin: left center;
   transform: scaleX(0);
   border-radius: 1px;
-}
-
-@media (max-width: 768px) {
-  .logo-full svg {
-    width: 180px;
-    height: auto;
-  }
-
-  .progress-bar {
-    width: 180px;
-  }
-}
-
-@media (max-width: 480px) {
-  .logo-full svg {
-    width: 140px;
-    height: auto;
-  }
-
-  .progress-bar {
-    width: 140px;
-  }
 }
 </style>
 

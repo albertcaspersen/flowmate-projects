@@ -1,19 +1,19 @@
 <template>
-  <section ref="quoteSection" class="quote-section w-full min-h-screen relative bg-transparent py-24 flex items-center lg:py-20 md:py-16 sm:py-12">
+  <section ref="quoteSection" class="quote-section w-full min-h-screen relative bg-transparent py-12 sm:py-12 md:py-16 lg:py-20 xl:py-24 flex items-center">
     <div class="grid-container">
-      <div class="quote-content row-start-1 col-start-3 col-span-4 lg:col-start-7 lg:col-span-5 md:col-start-1 md:col-span-12 md:row-start-1 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-start-2 relative z-10">
-        <blockquote ref="quoteText" class="quote-text text-[2rem] lg:text-[3rem] md:text-[1.5rem] sm:text-[1.25rem] font-medium leading-[1.4] mb-6 text-white italic mt-52 max-sm:mt-0">
+      <div class="quote-content row-start-2 sm:row-start-1 col-start-1 col-span-6 sm:col-start-3 sm:col-span-4 md:col-start-1 md:col-span-12 lg:col-start-7 lg:col-span-5 relative z-10">
+        <blockquote ref="quoteText" class="quote-text text-[1.25rem] sm:text-[1.25rem] md:text-[1.5rem] lg:text-[3rem] xl:text-[2rem] font-medium leading-[1.4] mb-6 text-white italic mt-0 sm:mt-52">
           <span v-for="(word, wordIndex) in quoteTextWords" :key="wordIndex" class="word-wrapper" :class="{ 'no-break': word.isHighlight }" :data-word-index="wordIndex">
             <span v-for="(char, charIndex) in word.chars" :key="charIndex" :data-index="word.startIndex + charIndex" class="char-span">
               {{ char === ' ' ? '\u00A0' : char }}
             </span>
           </span>
         </blockquote>
-        <p class="quote-author text-base lg:text-sm md:text-sm sm:text-sm font-medium text-white/80">
+        <p class="quote-author text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base font-medium text-white/80">
           {{ t('quote.author') }}
         </p>
       </div>
-      <div class="quote-video row-start-1 col-start-7 col-span-5 lg:col-start-4 lg:col-span-4 md:col-start-1 md:col-span-12 md:row-start-1 md:mt-0 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-start-1">
+      <div class="quote-video row-start-1 col-start-1 col-span-6 sm:col-start-7 sm:col-span-5 md:col-start-1 md:col-span-12 lg:col-start-4 lg:col-span-4">
         <div ref="videoWrapper" class="video-wrapper">
           <video 
             ref="quoteVideo"
@@ -180,36 +180,19 @@ defineExpose({
   display: inline-block;
 }
 
-/* MacBook 13" - quote og author font-størrelser og position */
-@media (min-width: 1280px) and (max-width: 1440px) {
-  .quote-text {
-    font-size: 1.7rem !important;
-    margin-top: 9rem;
+/* ===========================================
+   FLUID RESPONSIVE - Quote
+   =========================================== */
 
-  }
-  .quote-author {
-    font-size: 0.7rem !important;
-    margin-top: 1rem;
-   
-  }
+/* Quote text - FLUID */
+.quote-text {
+  font-size: clamp(1.5rem, 0.5rem + 2vw, 4rem) !important;
+  margin-top: clamp(5rem, 3rem + 8vw, 21rem);
 }
 
-/* Reducer quote tekst med 1rem på MacBook Pro 14" (ca. 1445px - 1700px) */
-@media (min-width: 1445px) and (max-width: 1700px) {
-  .quote-text {
-    font-size: 2.5rem;
-    margin-top: 10rem;
-  }
-}
-
-/* 27" skærmstørrelse (ca. 2560px bred) - gør quote tekster større */
-@media (min-width: 2500px) and (max-width: 2700px) {
-  .quote-text {
-    font-size: 4rem !important;
-    margin-top: 21rem; /* Gør quote tekst større - justér denne værdi efter behov */
-  }
-  .quote-author {
-    font-size: 1.1rem !important; /* Gør author tekst større - justér denne værdi efter behov */
-  }
+/* Quote author - FLUID */
+.quote-author {
+  font-size: clamp(0.7rem, 0.5rem + 0.3vw, 1.1rem) !important;
+  margin-top: clamp(0.5rem, 0.3rem + 0.4vw, 1.5rem);
 }
 </style>

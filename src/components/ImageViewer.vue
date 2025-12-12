@@ -3,7 +3,7 @@
     <!-- Three.js scene -->
     <div 
       ref="threeContainer" 
-      class="three-container max-sm:hidden"
+      class="three-container hidden sm:block"
       :class="{ 'pre-initializing': isPreInitializing }"
       :style="{ filter: `blur(${props.blurAmount}px) brightness(${props.brightness})` }"
     ></div>

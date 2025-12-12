@@ -29,9 +29,9 @@
     </div>
     <div class="grid-container relative z-10">
       <!-- Logo centered in grid -->
-      <div class="footer-logo-container col-start-4 col-span-6 md:col-start-1 md:col-span-12 max-sm:contents flex justify-center items-center py-12 lg:py-10 md:py-8">
-        <div class="footer-logo text-white flex items-center gap-4 max-sm:col-start-1 max-sm:col-span-6 max-sm:py-8 max-sm:mt-6">
-          <svg class="w-[48rem] h-36 lg:w-[40rem] lg:h-32 md:w-[32rem] md:h-24 sm:w-80 sm:h-16 max-sm:w-[calc(100%+8px)] max-sm:h-auto" viewBox="0 0 240 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="footer-logo-container contents sm:flex sm:col-start-4 sm:col-span-6 md:col-start-1 md:col-span-12 justify-center items-center py-8 sm:py-12 lg:py-10 md:py-8">
+        <div class="footer-logo text-white flex items-center gap-4 col-start-1 col-span-6 sm:col-span-full py-8 mt-6 sm:py-0 sm:mt-0">
+          <svg class="w-[calc(100%+8px)] h-auto sm:w-80 sm:h-16 md:w-[32rem] md:h-24 lg:w-[40rem] lg:h-32 xl:w-[48rem] xl:h-36" viewBox="0 0 240 44" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <clipPath id="clip0_footer">
                   <rect width="240" height="44" fill="white"/>
@@ -60,21 +60,21 @@
       </div>
       
       <!-- Email and Phone Row 2 (Desktop only) -->
-      <div class="row-start-2 col-start-1 col-span-6 hidden md:flex max-sm:hidden items-center py-0">
+      <div class="row-start-2 col-start-1 col-span-6 hidden md:flex items-center py-0">
         <a href="mailto:hello@flowmate.dk" class="footer-link text-white text-xl font-medium inline-block">
           hello@flowmate.dk
         </a>
       </div>
       
       <!-- Phone Number Row 2 (Desktop only) -->
-      <div class="row-start-2 col-start-10 col-span-3 hidden md:flex max-sm:hidden items-center justify-end py-0">
+      <div class="row-start-2 col-start-10 col-span-3 hidden md:flex items-center justify-end py-0">
         <a href="tel:+4571747426" class="footer-link text-white text-xl font-medium inline-block">
           +45 71 7474 26
         </a>
       </div>
 
       <!-- Social Icons Row 3 (Desktop only) -->
-      <div class="row-start-3 col-start-1 col-span-6 hidden md:flex max-sm:hidden items-center py-0">
+      <div class="row-start-3 col-start-1 col-span-6 hidden md:flex items-center py-0">
         <div class="footer-social flex gap-6">
           <!-- Instagram Icon -->
           <a href="#" class="text-white hover:text-white/80 transition-all duration-300 flex items-center hover:scale-110" aria-label="Instagram">
@@ -98,10 +98,10 @@
       </div>
 
       <!-- Separator Line (Desktop only) -->
-      <div class="row-start-4 col-start-1 col-span-12 hidden md:block max-sm:hidden pb-8 border-b border-white/20"></div>
+      <div class="row-start-4 col-start-1 col-span-12 hidden md:block pb-8 border-b border-white/20"></div>
 
       <!-- Contact Information Section (Mobile only) -->
-      <div class="footer-content col-start-1 col-span-12 max-sm:col-start-1 max-sm:col-span-6 pb-8 border-b border-white/20 md:hidden">
+      <div class="footer-content col-start-1 col-span-6 sm:col-span-12 pb-8 border-b border-white/20 md:hidden">
         <div>
           <!-- Email and Social -->
           <div>
@@ -142,7 +142,7 @@
       </div>
 
       <!-- Bottom Row: Copyright -->
-      <div class="footer-bottom row-start-5 col-start-1 col-span-12 max-sm:col-start-1 max-sm:col-span-6 py-8 text-center">
+      <div class="footer-bottom row-start-5 col-start-1 col-span-6 sm:col-span-12 py-8 text-center">
         <p class="footer-copyright text-white text-sm md:text-xs">
           {{ t('footer.copyright') }}
         </p>

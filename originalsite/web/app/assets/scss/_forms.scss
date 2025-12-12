@@ -1,0 +1,25 @@
+.flex-section.bg-white, .flex-section.bg-inherit {
+    input, textarea, select {
+        @apply bg-black/5 border border-black/15
+    }
+}
+
+input, textarea, select {
+    @apply bg-white border border-black/5 text-black rounded-[5px]
+}
+
+select {
+    @apply appearance-none;
+    text-rendering: auto;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.select-wrap {
+    @apply relative z-[3];
+}
+.select-wrap::after {
+    content: " ";
+    @apply h-2 w-2 z-[5] absolute border-r-2 border-b-2 border-current right-4 -translate-y-1/2 rotate-45 top-[calc(50%-2px)] pointer-events-none;
+}

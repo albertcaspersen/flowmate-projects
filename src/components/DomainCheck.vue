@@ -2,12 +2,12 @@
   <section class="domain-check-section w-full min-h-screen relative bg-transparent py-6 flex items-center lg:py-5 md:py-4 sm:py-3">
     <div class="grid-container">
       <!-- Eyebrow -->
-      <p ref="eyebrow" class="domain-check-eyebrow row-[1] col-start-1 col-span-5 lg:col-start-1 lg:col-span-6 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-[1] text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-0 lg:mb-0 max-sm:mb-6">
+      <p ref="eyebrow" class="domain-check-eyebrow row-[1] col-start-1 col-span-6 sm:col-span-5 md:col-span-12 lg:col-span-6 text-xs sm:text-sm font-medium tracking-wider uppercase text-white/70 mb-6 sm:mb-0 lg:mb-0">
         {{ t('domain.eyebrow') }}
       </p>
       
       <!-- Header -->
-      <h2 ref="domainCheckHeader" class="domain-check-header row-[2] col-start-1 col-span-5 lg:col-start-1 lg:col-span-6 md:col-start-1 md:col-span-12 max-sm:col-start-1 max-sm:col-span-6 max-sm:row-[2] text-[4.5rem] lg:text-[3rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.5rem] font-bold leading-[1.2] mb-8 max-sm:mb-0 text-white relative z-10">
+      <h2 ref="domainCheckHeader" class="domain-check-header row-[2] col-start-1 col-span-6 sm:col-span-5 md:col-span-12 lg:col-span-6 text-[1.5rem] sm:text-[2rem] md:text-[2.5rem] lg:text-[3rem] xl:text-[4.5rem] font-bold leading-[1.2] mb-0 sm:mb-8 text-white relative z-10">
           <span v-for="(char, index) in domainCheckHeaderCharsPart1" :key="`part1-${index}`" :data-index="index" class="char-span">
             {{ char === ' ' ? '\u00A0' : char }}
           </span>
@@ -18,7 +18,7 @@
         </h2>
 
       <!-- Large Domain Input Field -->
-      <div ref="domainCheckForm" class="domain-input-container row-[3] col-[1/13] max-sm:col-[1/7] max-sm:row-[3] pb-4">
+      <div ref="domainCheckForm" class="domain-input-container row-[3] col-[1/7] sm:col-[1/13] pb-4">
         <!-- Animated Line -->
         <div ref="animatedLine" class="animated-line h-0.5 bg-white"></div>
         <div class="domain-input-wrapper relative flex items-end gap-4">
@@ -33,7 +33,7 @@
               @blur="isFocused = false"
               class="domain-input-large bg-transparent border-none text-white placeholder-white/30 focus:outline-none transition-colors duration-200 w-full"
             />
-            <span v-if="domainName" class="domain-suffix text-white/70 text-[7rem] lg:text-[3.5rem] md:text-[2.5rem] sm:text-[2rem] max-sm:text-[1.25rem] font-normal leading-[1.2] ml-2">.dk</span>
+            <span v-if="domainName" class="domain-suffix text-white/70 text-[1.25rem] sm:text-[2rem] md:text-[2.5rem] lg:text-[3.5rem] xl:text-[7rem] font-normal leading-[1.2] ml-2">.dk</span>
             <span 
               v-if="showCursor"
               class="blinking-cursor"
@@ -54,7 +54,7 @@
       </div>
 
       <!-- Domain Note -->
-      <div class="domain-note-container row-[4] col-[1/4] max-sm:col-[1/7] max-sm:row-[4]">
+      <div class="domain-note-container row-[4] col-[1/7] sm:col-[1/4]">
         <p ref="domainNote" class="domain-note text-sm text-gray-400">
           Only .dk domains are currently supported.
         </p>
@@ -523,36 +523,28 @@ const checkViaAlternativeMethod = async (fullDomain) => {
 }
 
 /* MacBook 13" - eyebrow tekst, overskrift og input */
-@media (min-width: 1280px) and (max-width: 1440px) {
-  .domain-check-eyebrow {
-    font-size: 0.6rem !important;
-  }
-  .domain-check-header {
-    font-size: 2rem !important;
-  }
-  .domain-input-large {
-    font-size: 5rem !important;
-  }
-  .blinking-cursor {
-    font-size: 5rem !important;
-  }
+/* ===========================================
+   FLUID RESPONSIVE - DomainCheck
+   =========================================== */
+
+/* Eyebrow - FLUID */
+.domain-check-eyebrow {
+  font-size: clamp(0.6rem, 0.4rem + 0.25vw, 1.2rem) !important;
 }
 
-/* Reducer font-størrelse på domain check overskrift til MacBook Pro 14" */
-@media (min-width: 1445px) and (max-width: 1700px) {
-  .domain-check-header {
-    font-size: 2.5rem;
-  }
+/* H2 - FLUID */
+.domain-check-header {
+  font-size: clamp(1.5rem, 0.5rem + 2.5vw, 4.5rem) !important;
 }
 
-/* 27" skærmstørrelse (ca. 2560px bred) - gør eyebrow og overskrift større */
-@media (min-width: 2500px) and (max-width: 2700px) {
-  .domain-check-eyebrow {
-    font-size: 1.2rem !important; /* Matcher features eyebrow - justér denne værdi efter behov */
-  }
-  .domain-check-header {
-    font-size: 4.5rem !important; /* Matcher andre overskrifter - justér denne værdi efter behov */
-  }
+/* Domain input - FLUID */
+.domain-input-large {
+  font-size: clamp(2rem, 1rem + 4vw, 8rem) !important;
+}
+
+/* Blinking cursor - FLUID */
+.blinking-cursor {
+  font-size: clamp(2rem, 1rem + 4vw, 8rem) !important;
 }
 </style>
 
