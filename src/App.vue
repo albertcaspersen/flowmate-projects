@@ -86,7 +86,7 @@ const updateHeaderTopPosition = () => {
   // Fluid hero position: 60% of viewport height
   // This creates consistent placement across all screen sizes
   const viewportHeight = window.innerHeight;
-  const targetPosition = viewportHeight * 0.63; // 60% down from top
+  const targetPosition = viewportHeight * 0.60; // 60% down from top
   
   headerTopPosition.value = `${targetPosition}px`;
 };
@@ -668,24 +668,8 @@ onMounted(() => {
       mm.add("(min-width: 769px)", () => {
         // Gendan original tekst først (vigtig ved HMR/reload)
         contentTitle.value.classList.remove('lines-ready');
-        contentTitle.value.innerHTML = '';
-        
-        // Tjek om vi er på MacBook Pro 14" størrelse og indsæt linjeskift før "uden"
-        let textToUse = originalText;
-        const isMacBook14 = window.innerWidth >= 1440 && window.innerWidth <= 1700;
-        if (isMacBook14 && textToUse.includes('uden')) {
-          textToUse = textToUse.replace(' uden ', ' <br>uden ');
-        }
-        
-        // Tjek om vi er på MacBook 13" størrelse og indsæt linjeskift
-        const isMacBook13 = window.innerWidth >= 1280 && window.innerWidth <= 1440;
-        if (isMacBook13) {
-          // Tilføj dine linjeskift her - eksempel:
-          // textToUse = textToUse.replace(' dit ord ', ' <br>dit ord ');
-          // Du kan tilføje flere linjeskift ved at tilføje flere replace() kald
-        }
-        
-        contentTitle.value.innerHTML = textToUse;
+        // Brug original tekst - CSS håndterer nu fluid responsivitet
+        contentTitle.value.innerHTML = originalText;
         
         // Vent på at DOM er klar før vi splitter
         requestAnimationFrame(() => {
@@ -1833,12 +1817,49 @@ html, body {
   bottom: clamp(1rem, 2vw, 3rem) !important;
 }
 
-/* Content title - FLUID */
+/* ===========================================
+   FLUID RESPONSIVE - Content Title
+   =========================================== */
+
+/* Content title - FLUID typography */
 .content-title {
   font-size: clamp(1.5rem, 0.5rem + 3vw, 4.5rem) !important;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #ffffff;
+  text-align: left;
+  white-space: normal;
+  display: block;
+  opacity: 1;
+  transform: none;
 }
 
-/* xl: 1280px+ - Layout ændringer (ikke font-sizes) */
+/* Content title - FLUID grid positioning */
+.content-title {
+  grid-row: 2;
+  /* Mobil: fuld bredde */
+  grid-column: 1 / -1;
+}
+
+/* md: 768px+ - Tablet */
+@media (min-width: 768px) {
+  .content-title {
+    grid-column: 1 / 7;
+    text-align: left;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* lg: 1024px+ - Laptop */
+@media (min-width: 1024px) {
+  .content-title {
+    grid-column: 1 / 8;
+    text-align: center;
+  }
+}
+
+/* xl: 1280px+ - Desktop */
 @media (min-width: 1280px) {
   .hero-eyebrow,
   .hero-subtitle {
@@ -1850,14 +1871,21 @@ html, body {
   }
 
   .content-title {
-    grid-column: 3 / 11 !important;
+    grid-column: 3 / 11;
   }
 }
 
-/* 2xl: 1920px+ - Kun for meget store skærme */
+/* 2xl: 1920px+ - Store skærme */
 @media (min-width: 1920px) {
   .content-title {
-    grid-column: 2 / 12 !important;
+    grid-column: 2 / 12;
+  }
+}
+
+/* 4xl: 2560px+ - Meget store skærme */
+@media (min-width: 2560px) {
+  .content-title {
+    grid-column: 3 / 11;
   }
 }
 
@@ -1932,69 +1960,6 @@ html, body {
 .content-eyebrow {
   grid-column: 1 / 7;
   grid-row: 1;
-}
-
-/* Content title - Mobile first */
-.content-title {
-  /* Mobil (default) */
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.3;
-  color: #ffffff;
-  text-align: left;
-  grid-row: 2;
-  grid-column: 1 / -1;
-  white-space: normal;
-  display: block;
-  opacity: 1;
-  transform: none;
-}
-
-/* sm: 640px+ */
-@media (min-width: 640px) {
-  .content-title {
-    font-size: 2rem;
-    text-align: center;
-    padding: 0 1rem;
-  }
-}
-
-/* md: 768px+ */
-@media (min-width: 768px) {
-  .content-title {
-    font-size: 2rem;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    grid-column: 1 / 7;
-  }
-}
-
-/* lg: 1024px+ */
-@media (min-width: 1024px) {
-  .content-title {
-    font-size: 3rem;
-    grid-column: 1 / 8;
-    text-align: center;
-    padding: 0;
-  }
-}
-
-/* xl: 1280px+ - styling håndteres allerede ovenfor */
-
-/* 2xl: 1536px+ */
-@media (min-width: 1536px) {
-  .content-title {
-    font-size: 4rem;
-    grid-column: 1 / 13;
-  }
-}
-
-/* 3xl: 1920px+ - Desktop */
-@media (min-width: 1920px) {
-  .content-title {
-    font-size: 4.5rem;
-    grid-column: 2 / 12;
-  }
 }
 
 /* Line wrapper for stagger animation */
@@ -2137,11 +2102,5 @@ html, body {
   font-size: clamp(0.6rem, 0.4rem + 0.25vw, 1.2rem) !important;
 }
 
-/* 4xl: 2560px+ - Store skærme - kun layout justeringer */
-@media (min-width: 2560px) {
-  .content-title {
-    grid-column: 3 / 11;
-  }
-}
 
 </style>
